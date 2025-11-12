@@ -4,16 +4,12 @@
  */
 package medicamentos;
 
-import java.awt.event.ItemEvent;
-import java.util.*;
 
 import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -43,49 +39,51 @@ public class RecuperarProducto extends javax.swing.JFrame {
             setTitle("Inventario - Administrador");  
         } 
         tablaRecuperar.setModel(new DefaultTableModel(
-        new Object[][] {},
-        new String[] { "Nombre Comercial", "Descripción Activo", "Código de Barras" }
+            new Object[][] {},
+            new String[] { "Nombre Comercial", "Descripción", "Código de Barras" }
         ));
-
         cargarTablaInactivos();
     }
     
-    private void cargarTablaInactivos() {
-        DefaultTableModel modelo = new DefaultTableModel(
-        new Object[][] {},
-        new String[] { "Nombre Comercial", "Descripción Activo", "Código de Barras" }
-        ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; 
-            }
-        };
+        private void cargarTablaInactivos() {
+          DefaultTableModel modelo = new DefaultTableModel(
+              new Object[][] {},
+              new String[] { "Nombre Comercial", "Descripción", "Código de Barras" }
+          ) {
+              @Override
+              public boolean isCellEditable(int row, int column) {
+                  return false;
+              }
+          };
 
-        tablaRecuperar.setModel(modelo); 
-        tablaRecuperar.getTableHeader().setReorderingAllowed(false);
-        tablaRecuperar.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+          tablaRecuperar.setModel(modelo);
+          tablaRecuperar.getTableHeader().setReorderingAllowed(false);
+          tablaRecuperar.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-        Connection conn = Conexion.conectar();
-        String sql = "SELECT nombre_comercial, descripcion_activo, codigo_barras FROM Productos WHERE activo = 0";
+          Connection conn = Conexion.conectar();
+          // Ajustado a los nombres de columna actuales en la BD
+          String sql = "SELECT nom_com, descripcion, cod_barras FROM Productos WHERE activo = 0 ORDER BY nom_com COLLATE NOCASE ASC";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+          try (PreparedStatement ps = conn.prepareStatement(sql);
+               ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Object[] fila = {
-                    rs.getString("nombre_comercial"),
-                    rs.getString("descripcion_activo"),
-                    rs.getString("codigo_barras")
-                };
-                modelo.addRow(fila);
-            }
+              while (rs.next()) {
+                  Object[] fila = {
+                      rs.getString("nom_com"),
+                      rs.getString("descripcion"),
+                      rs.getString("cod_barras")
+                  };
+                  modelo.addRow(fila);
+              }
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar productos inactivos: " + e.getMessage());
-        } finally {
-            Conexion.cerrar(conn);
-        }
-    }
+          } catch (SQLException e) {
+              JOptionPane.showMessageDialog(this, "Error al cargar productos inactivos: " + e.getMessage());
+              e.printStackTrace();
+          } finally {
+              Conexion.cerrar(conn);
+          }
+      }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -249,7 +247,7 @@ public class RecuperarProducto extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btnRecuperarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecuperarActionPerformed
-         String codigo = txtCodigoBarras.getText().trim();
+          String codigo = txtCodigoBarras.getText().trim();
 
         if (codigo.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Selecciona un producto primero.");
@@ -268,7 +266,7 @@ public class RecuperarProducto extends javax.swing.JFrame {
         }
 
         Connection conn = Conexion.conectar();
-        String sql = "UPDATE Productos SET activo = 1 WHERE codigo_barras = ?";
+        String sql = "UPDATE Productos SET activo = 1 WHERE cod_barras = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, codigo);
@@ -287,19 +285,24 @@ public class RecuperarProducto extends javax.swing.JFrame {
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al recuperar producto: " + e.getMessage());
+            e.printStackTrace();
         }
 
     }//GEN-LAST:event_btnRecuperarActionPerformed
 
     private void tablaRecuperarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaRecuperarMouseClicked
-        int fila = tablaRecuperar.getSelectedRow();
+       int fila = tablaRecuperar.getSelectedRow();
         if (fila >= 0) {
-            String nombre = tablaRecuperar.getValueAt(fila, 0).toString();
-            String descripcion = tablaRecuperar.getValueAt(fila, 1).toString();
-            String codigo = tablaRecuperar.getValueAt(fila, 2).toString();
+            // Convertir a índice del modelo por si hay sorting/filtering en la tabla
+            int filaModel = tablaRecuperar.convertRowIndexToModel(fila);
+            DefaultTableModel modelo = (DefaultTableModel) tablaRecuperar.getModel();
+
+            String nombre = String.valueOf(modelo.getValueAt(filaModel, 0));
+            String descripcion = String.valueOf(modelo.getValueAt(filaModel, 1));
+            String codigo = String.valueOf(modelo.getValueAt(filaModel, 2));
 
             txtNombre.setText(nombre);
-            txtActivo.setText(descripcion);
+            txtActivo.setText(descripcion); // mostramos la descripción en el campo central
             txtCodigoBarras.setText(codigo);
         }
     }//GEN-LAST:event_tablaRecuperarMouseClicked

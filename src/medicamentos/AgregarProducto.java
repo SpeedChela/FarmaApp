@@ -37,37 +37,10 @@ public class AgregarProducto extends javax.swing.JFrame {
         this.rol = rol;
         this.idUsuario = idUsuario;
         setLocationRelativeTo(null);
-        cargarEstantes();
         pack();
     }
-    
-    private Map<Integer, String> mapaEstantes = new HashMap<>();
 
-    private void cargarEstantes() {
-        Connection conn = Conexion.conectar();
-        String sql = "SELECT numEstante, tipo FROM Estantes";
 
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            mapaEstantes.clear();        // Limpiar mapa previo
-
-            while (rs.next()) {
-                int numero = rs.getInt("numEstante");
-                String tipo = rs.getString("tipo");
-
-                mapaEstantes.put(numero, tipo);             // Guardar referencia
-            }
-
-            rs.close();
-            ps.close();
-            Conexion.cerrar(conn);
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar estantes: " + e.getMessage());
-        }
-    }
 
     
     
@@ -81,7 +54,6 @@ public class AgregarProducto extends javax.swing.JFrame {
         txtFarmaceutica.setText("");
         txtPrecio_compra.setText("");
         txtPorcentajeV.setText("");
-        txtPrecio_venta.setText("");
         txtFecha_cad.setText("");
         txtStock.setText("");
         txtMin_stock.setText("");
@@ -113,7 +85,6 @@ public class AgregarProducto extends javax.swing.JFrame {
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         txtGramaje = new javax.swing.JTextField();
         txtPrecio_compra = new javax.swing.JTextField();
@@ -126,7 +97,6 @@ public class AgregarProducto extends javax.swing.JFrame {
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
         jLabel26 = new javax.swing.JLabel();
-        txtPrecio_venta = new javax.swing.JTextField();
         txtStock = new javax.swing.JTextField();
         txtMin_stock = new javax.swing.JTextField();
         txtMax_stock = new javax.swing.JTextField();
@@ -187,10 +157,6 @@ public class AgregarProducto extends javax.swing.JFrame {
         jLabel17.setForeground(new java.awt.Color(0, 0, 0));
         jLabel17.setText("% Venta");
 
-        jLabel18.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel18.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel18.setText("Precio Venta");
-
         jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(0, 0, 0));
         jLabel19.setText("Fecha Cad");
@@ -246,11 +212,7 @@ public class AgregarProducto extends javax.swing.JFrame {
                                         .addComponent(txtPrecio_compra, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
                                         .addComponent(txtPorcentajeV, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(txtPrecio_venta, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(29, 29, 29))
+                                        .addGap(155, 155, 155))
                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel1Layout.createSequentialGroup()
                                             .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -334,13 +296,11 @@ public class AgregarProducto extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel15)
                     .addComponent(jLabel17)
-                    .addComponent(jLabel16)
-                    .addComponent(jLabel18))
+                    .addComponent(jLabel16))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtPrecio_compra, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtGramaje, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtPorcentajeV, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtPrecio_venta, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtPorcentajeV, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
@@ -385,152 +345,269 @@ public class AgregarProducto extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        String nombre = txtNom_com.getText().trim();
-        String descripcion = txtDescripcion.getText().trim();
-        String barras = txtCodigo.getText().trim();
-        String precioStr = txtPrecio.getText().trim();
-        String stockStr = txtStock.getText().trim();
-        String minStr = txtStockMin.getText().trim();
-        String maxStr = txtStockMax.getText().trim();
-        String lab = txtLab.getText().trim();
-        String contenido = txtContenido.getText().trim();
-        String gramaje = txtGramaje.getText().trim();
-        String presentacion = txtPresentacion.getText().trim();
+            // Recolectar valores desde los JTextFields
+            String codBarras = txtCod_barras.getText().trim();
+            String nombre = txtNom_com.getText().trim();
+            String descripcion = txtDescripcion.getText().trim();
+            String contenido = txtContenido.getText().trim();
+            String gramaje = txtGramaje.getText().trim();
+            String presentacion = txtPresentacion.getText().trim();
+            String farmaceutica = txtFarmaceutica.getText().trim();
+            String tipo = txtTipo.getText().trim();
 
-        // Validaciones básicas
+            String precioCompraStr = txtPrecio_compra.getText().trim();
+            String porcentajeStr = txtPorcentajeV.getText().trim(); // obligatorio para calcular precio_venta
 
-        double precio;
-        int stock, minStock, maxStock, numEstante;
+            String fechaCad = txtFecha_cad.getText().trim();
+            String stockStr = txtStock.getText().trim();
+            String minStockStr = txtMin_stock.getText().trim();
+            String maxStockStr = txtMax_stock.getText().trim();
 
-        try {
-            precio = Double.parseDouble(precioStr);
-            stock = Integer.parseInt(stockStr);
-            minStock = Integer.parseInt(minStr);
-            maxStock = Integer.parseInt(maxStr);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Stock y precios deben ser valores numéricos.");
-            return;
-        }
+            // Validaciones iniciales
+            if (codBarras.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El código de barras es obligatorio.");
+                return;
+            }
+            if (nombre.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El nombre comercial es obligatorio.");
+                return;
+            }
 
-        Connection conn = Conexion.conectar();
+            double precioCompra;
+            double precioVenta;
+            double porcentaje = 0.0;
+            int stock, minStock, maxStock;
 
-        try {
-            // Buscar si ya existe ese código
-            String buscarProducto = "SELECT id, nombre_comercial, activo, stock FROM Productos WHERE codigo_barras = ?";
-            PreparedStatement checkExistente = conn.prepareStatement(buscarProducto);
-            checkExistente.setString(1, barras);
-            ResultSet rsExistente = checkExistente.executeQuery();
-
-            if (rsExistente.next()) {
-                int idExistente = rsExistente.getInt("id");
-                String nombreExistente = rsExistente.getString("nombre_comercial");
-                boolean activo = rsExistente.getBoolean("activo");
-
-                String estado = activo ? "activo" : "inactivo";
-                int decision = JOptionPane.showConfirmDialog(
-                    this,
-                    "Ya existe un producto con ese código de barras:\n"
-                    + "Nombre: " + nombreExistente + "\n"
-                    + "Estado actual: " + estado + "\n\n"
-                    + "¿Deseas registrar este producto nuevamente?",
-                    "Producto duplicado",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-                );
-
-                if (decision != JOptionPane.YES_OPTION) {
-                    rsExistente.close();
-                    checkExistente.close();
-                    Conexion.cerrar(conn);
-                    limpiarCampos();
+            // Parseo y validaciones numéricas
+            try {
+                if (precioCompraStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "El precio de compra es obligatorio.");
+                    return;
+                }
+                precioCompra = Double.parseDouble(precioCompraStr);
+                if (precioCompra < 0) {
+                    JOptionPane.showMessageDialog(this, "El precio de compra no puede ser negativo.");
                     return;
                 }
 
-                // Ofrecer opción de actualizar o insertar nuevo
-                int opcion = JOptionPane.showOptionDialog(
-                    this,
-                    "¿Qué deseas hacer con el producto existente?",
-                    "Selecciona acción",
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    new String[]{"Actualizar producto", "Agregar como nuevo", "Cancelar"},
-                    "Actualizar producto"
-                );
+                // Como txtPrecio_venta fue removido, requerimos porcentaje para calcular precio_venta.
+                if (porcentajeStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Debes indicar % Venta para calcular el Precio de Venta.");
+                    return;
+                }
+                porcentaje = Double.parseDouble(porcentajeStr);
+                if (porcentaje < 0) {
+                    JOptionPane.showMessageDialog(this, "El porcentaje de venta no puede ser negativo.");
+                    return;
+                }
 
-                if (opcion == 0) {
-                    // Actualizar producto existente
-                    String sqlUpdate = "UPDATE Productos SET nombre_comercial = ?, descripcion_activo = ?, farmaceutica = ?, gramaje = ?, contenido = ?, presentacion = ?, precio = ?, stock = stock + ?, minimoStock = ?, maximoStock = ?, fecha_caducidad = ?, numEstante = ?, activo = TRUE WHERE id = ?";
-                    PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate);
-                    psUpdate.setString(1, nombre);
-                    psUpdate.setString(2, descripcion);
-                    psUpdate.setString(3, lab.isEmpty() ? null : lab);
-                    psUpdate.setString(4, gramaje.isEmpty() ? null : gramaje);
-                    psUpdate.setString(5, contenido.isEmpty() ? null : contenido);
-                    psUpdate.setString(6, presentacion.isEmpty() ? null : presentacion);
-                    psUpdate.setDouble(7, precio);
-                    psUpdate.setInt(8, stock);
-                    psUpdate.setInt(9, minStock);
-                    psUpdate.setInt(10, maxStock);
-                    psUpdate.setInt(13, idExistente);
+                // Calcular precio_venta a partir de precio_compra y porcentaje
+                precioVenta = precioCompra * (1.0 + porcentaje / 100.0);
+                precioVenta = Math.round(precioVenta * 100.0) / 100.0;
 
-                    int filas = psUpdate.executeUpdate();
-                    psUpdate.close();
-                    Conexion.cerrar(conn);
+                // Stocks
+                if (stockStr.isEmpty() || minStockStr.isEmpty() || maxStockStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Los campos de stock (Stock, Min, Max) son obligatorios.");
+                    return;
+                }
+                stock = Integer.parseInt(stockStr);
+                minStock = Integer.parseInt(minStockStr);
+                maxStock = Integer.parseInt(maxStockStr);
 
-                    if (filas > 0) {
-                        JOptionPane.showMessageDialog(this, "Producto actualizado correctamente.");
+                if (stock < 0 || minStock < 0 || maxStock < 0) {
+                    JOptionPane.showMessageDialog(this, "Los valores de stock no pueden ser negativos.");
+                    return;
+                }
+                if (minStock > maxStock) {
+                    JOptionPane.showMessageDialog(this, "Min Stock no puede ser mayor que Max Stock.");
+                    return;
+                }
+                if (stock < minStock || stock > maxStock) {
+                    int opt = JOptionPane.showConfirmDialog(this,
+                        "El Stock actual no está entre Min y Max. ¿Deseas continuar?",
+                        "Stock fuera de rango",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                    if (opt != JOptionPane.YES_OPTION) return;
+                }
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Valores numéricos inválidos en precio, porcentaje o stock.");
+                return;
+            }
+
+            Connection conn = null;
+            PreparedStatement psCheck = null;
+            ResultSet rsExist = null;
+
+            try {
+                conn = Conexion.conectar();
+
+                // 1) Verificar si ya existe un producto con ese cod_barras
+                String sqlCheck = "SELECT cod_barras, nom_com, activo FROM Productos WHERE cod_barras = ?";
+                psCheck = conn.prepareStatement(sqlCheck);
+                psCheck.setString(1, codBarras);
+                rsExist = psCheck.executeQuery();
+
+                if (rsExist.next()) {
+                    boolean activo = rsExist.getInt("activo") == 1;
+                    String nombreExistente = rsExist.getString("nom_com");
+                    String estado = activo ? "activo" : "inactivo";
+
+                    // Si está inactivo preguntamos si desea reactivar
+                    if (!activo) {
+                        int reactivar = JOptionPane.showConfirmDialog(
+                            this,
+                            "Se encontró el producto pero está inactivo:\n" +
+                            "Nombre: " + nombreExistente + "\n\n" +
+                            "¿Deseas reactivar este producto?",
+                            "Producto inactivo",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE
+                        );
+
+                        if (reactivar == JOptionPane.YES_OPTION) {
+                            // Reactivar: sólo actualizar activo = 1
+                            String sqlReact = "UPDATE Productos SET activo = 1 WHERE cod_barras = ?";
+                            try (PreparedStatement psReact = conn.prepareStatement(sqlReact)) {
+                                psReact.setString(1, codBarras);
+                                int updated = psReact.executeUpdate();
+                                if (updated > 0) {
+                                    JOptionPane.showMessageDialog(this, "Producto reactivado correctamente.");
+                                    limpiarCampos();
+                                } else {
+                                    JOptionPane.showMessageDialog(this, "No se pudo reactivar el producto.");
+                                }
+                            }
+                            return;
+                        }
+                        // Si no desea reactivar, preguntamos si quiere sobreescribir la info
+                        int sobreescribir = JOptionPane.showConfirmDialog(
+                            this,
+                            "¿Deseas sobreescribir la información existente con los nuevos datos?",
+                            "Sobreescribir producto",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE
+                        );
+                        if (sobreescribir != JOptionPane.YES_OPTION) {
+                            JOptionPane.showMessageDialog(this, "Operación cancelada.");
+                            return;
+                        }
+                        // Si acepta sobreescribir continuará con la actualización más abajo.
                     } else {
-                        JOptionPane.showMessageDialog(this, "No se pudo actualizar el producto.");
+                        // Producto activo: preguntar si desea sobreescribir
+                        int decision = JOptionPane.showConfirmDialog(
+                            this,
+                            "Ya existe un producto con ese código de barras:\n" +
+                            "Nombre: " + nombreExistente + "\n" +
+                            "Estado: " + estado + "\n\n" +
+                            "¿Deseas sobrescribir la información con los nuevos datos?",
+                            "Producto existente",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE
+                        );
+
+                        if (decision != JOptionPane.YES_OPTION) {
+                            JOptionPane.showMessageDialog(this, "Operación cancelada.");
+                            return;
+                        }
+                        // Si acepta sobrescribir continuará con la actualización más abajo.
                     }
 
-                    limpiarCampos();
-                    return;
+                    // Llegamos aquí cuando el usuario eligió sobreescribir (o reactivar+sobreescribir flow)
+                    String sqlUpdate = "UPDATE Productos SET " +
+                        "nom_com = ?, descripcion = ?, contenido = ?, gramaje = ?, presentacion = ?, " +
+                        "farmaceutica = ?, tipo = ?, precio_compra = ?, precio_venta = ?, porcentajeV = ?, " +
+                        "fecha_cad = ?, stock = ?, min_stock = ?, max_stock = ?, activo = ? " +
+                        "WHERE cod_barras = ?";
 
-                } else if (opcion == 2 || opcion == JOptionPane.CLOSED_OPTION) {
-                    rsExistente.close();
-                    checkExistente.close();
-                    Conexion.cerrar(conn);
-                    limpiarCampos();
+                    try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
+                        psUpdate.setString(1, nombre);
+                        psUpdate.setString(2, descripcion.isEmpty() ? null : descripcion);
+                        psUpdate.setString(3, contenido.isEmpty() ? null : contenido);
+                        psUpdate.setString(4, gramaje.isEmpty() ? null : gramaje);
+                        psUpdate.setString(5, presentacion.isEmpty() ? null : presentacion);
+                        psUpdate.setString(6, farmaceutica.isEmpty() ? null : farmaceutica);
+                        psUpdate.setString(7, tipo.isEmpty() ? null : tipo);
+                        psUpdate.setDouble(8, precioCompra);
+                        psUpdate.setDouble(9, precioVenta);      // calculado arriba
+                        psUpdate.setDouble(10, porcentaje);      // guardamos porcentajeV
+                        if (fechaCad == null || fechaCad.trim().isEmpty()) {
+                            psUpdate.setNull(11, java.sql.Types.VARCHAR);
+                        } else {
+                            psUpdate.setString(11, fechaCad);
+                        }
+                        psUpdate.setInt(12, stock);
+                        psUpdate.setInt(13, minStock);
+                        psUpdate.setInt(14, maxStock);
+                        psUpdate.setInt(15, 1); // activo = 1 (si sobreescribe se deja activo)
+                        psUpdate.setString(16, codBarras); // WHERE cod_barras = ?
+
+                        int filas = psUpdate.executeUpdate();
+                        if (filas > 0) {
+                            JOptionPane.showMessageDialog(this, "Producto actualizado correctamente.");
+                            limpiarCampos();
+                        } else {
+                            JOptionPane.showMessageDialog(this, "No se pudo actualizar el producto.");
+                        }
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this, "Error al actualizar producto: " + ex.getMessage());
+                    }
+
                     return;
                 }
 
-                // continuar si eligió "Agregar como nuevo"
-                rsExistente.close();
-                checkExistente.close();
+                // 2) Si no existe, insertar nuevo producto
+                String sqlInsert = "INSERT INTO Productos (" +
+                    "cod_barras, nom_com, descripcion, contenido, gramaje, presentacion, farmaceutica, tipo, " +
+                    "precio_compra, precio_venta, porcentajeV, fecha_cad, stock, min_stock, max_stock, activo" +
+                    ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert)) {
+                    psInsert.setString(1, codBarras.isEmpty() ? null : codBarras);
+                    psInsert.setString(2, nombre);
+                    psInsert.setString(3, descripcion.isEmpty() ? null : descripcion);
+                    psInsert.setString(4, contenido.isEmpty() ? null : contenido);
+                    psInsert.setString(5, gramaje.isEmpty() ? null : gramaje);
+                    psInsert.setString(6, presentacion.isEmpty() ? null : presentacion);
+                    psInsert.setString(7, farmaceutica.isEmpty() ? null : farmaceutica);
+                    psInsert.setString(8, tipo.isEmpty() ? null : tipo);
+                    psInsert.setDouble(9, precioCompra);
+                    psInsert.setDouble(10, precioVenta);   // calculado arriba
+                    psInsert.setDouble(11, porcentaje);    // porcentajeV
+                    if (fechaCad == null || fechaCad.trim().isEmpty()) {
+                        psInsert.setNull(12, java.sql.Types.VARCHAR);
+                    } else {
+                        psInsert.setString(12, fechaCad);
+                    }
+                    psInsert.setInt(13, stock);
+                    psInsert.setInt(14, minStock);
+                    psInsert.setInt(15, maxStock);
+                    psInsert.setInt(16, 1); // activo = 1
+
+                    int filas = psInsert.executeUpdate();
+                    if (filas > 0) {
+                        JOptionPane.showMessageDialog(this, "Producto agregado con éxito.");
+                        limpiarCampos();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No se pudo agregar el producto.");
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this, "Error al insertar producto: " + ex.getMessage());
+                }
+
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al agregar/actualizar: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (rsExist != null) rsExist.close();
+                    if (psCheck != null) psCheck.close();
+                    Conexion.cerrar(conn);
+                } catch (SQLException ex) {
+                    System.out.println("Error cerrando recursos: " + ex.getMessage());
+                }
             }
-
-            // Inserción de nuevo producto
-            String sqlInsert = "INSERT INTO Productos (nombre_comercial, descripcion_activo, farmaceutica, codigo_barras, gramaje, contenido, presentacion, precio, stock, minimoStock, maximoStock, fecha_caducidad, numEstante, activo) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)";
-
-            PreparedStatement ps = conn.prepareStatement(sqlInsert);
-            ps.setString(1, nombre);
-            ps.setString(2, descripcion);
-            ps.setString(3, lab.isEmpty() ? null : lab);
-            ps.setString(4, barras.isEmpty() ? null : barras);
-            ps.setString(5, gramaje.isEmpty() ? null : gramaje);
-            ps.setString(6, contenido.isEmpty() ? null : contenido);
-            ps.setString(7, presentacion.isEmpty() ? null : presentacion);
-            ps.setDouble(8, precio);
-            ps.setInt(9, stock);
-            ps.setInt(10, minStock);
-            ps.setInt(11, maxStock);
-
-            int filas = ps.executeUpdate();
-            ps.close();
-            Conexion.cerrar(conn);
-
-            if (filas > 0) {
-                JOptionPane.showMessageDialog(this, "Producto agregado con éxito.");
-                limpiarCampos();
-            } else {
-                JOptionPane.showMessageDialog(this, "No se pudo agregar el producto.");
-            }
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al agregar: " + e.getMessage());
-        }
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -575,7 +652,6 @@ public class AgregarProducto extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
@@ -596,7 +672,6 @@ public class AgregarProducto extends javax.swing.JFrame {
     private javax.swing.JTextField txtNom_com;
     private javax.swing.JTextField txtPorcentajeV;
     private javax.swing.JTextField txtPrecio_compra;
-    private javax.swing.JTextField txtPrecio_venta;
     private javax.swing.JTextField txtPresentacion;
     private javax.swing.JTextField txtStock;
     private javax.swing.JTextField txtTipo;
