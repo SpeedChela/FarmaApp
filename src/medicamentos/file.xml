@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ticketTemplate>
+  <header>
+    <company>Mi Farmacia</company>
+    <address>Dirección</address>
+  </header>
+  <item>
+    <cod_barras></cod_barras>
+    <cantidad></cantidad>
+    <precio_unitario></precio_unitario>
+    <subtotal></subtotal>
+  </item>
+  <footer>
+    <total></total>
+  </footer>
+</ticketTemplate>
