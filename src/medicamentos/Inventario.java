@@ -750,7 +750,7 @@ private void cargarMedicamentos() {
     }//GEN-LAST:event_ResetbtnActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-    // 1. --- Recolección de datos desde los JTextFields (Alineado con tu tabla) ---
+        // 1. Recolección de datos desde los JTextFields
         String nuevoCodBarras = txtCod_barras.getText().trim();
         String nuevoNomCom = txtNom_com.getText().trim();
         String nuevaDescripcion = txtDescripcion.getText().trim();
@@ -763,36 +763,65 @@ private void cargarMedicamentos() {
         // Campos numéricos/fecha
         String nuevoPrecioCompraStr = txtPrecio_compra.getText().trim();
         String nuevoPrecioVentaStr = txtPrecio_venta.getText().trim();
-        String nuevaFechaCad = txtFecha_cad.getText().trim(); 
+        String porcentajeStr = txtPorcentajeV.getText().trim();
+        String nuevaFechaCad = txtFecha_cad.getText().trim();
         String nuevoStockStr = txtStock.getText().trim();
         String nuevoMinStockStr = txtMin_stock.getText().trim();
         String nuevoMaxStockStr = txtMax_stock.getText().trim();
 
-        // El campo 'activo' no tiene un textfield en tu lista, lo gestionamos como INTEGER
-        // Asumimos que si no hay un control específico, el producto se mantiene activo (1).
-        int nuevoActivo = 1; 
+        // El campo 'activo' lo dejamos por defecto en 1 (puedes adaptarlo si tienes control)
+        int nuevoActivo = 1;
 
-        double nuevoPrecioCompra, nuevoPrecioVenta;
+        double nuevoPrecioCompra;
+        double nuevoPrecioVenta;
         int nuevoStock, nuevoMinStock, nuevoMaxStock;
 
-        // 2. --- Parseo de números y validación ---
+        // 2. Parseo y validaciones básicas
+        boolean usarPorcentaje = false;
+        double porcentaje = 0.0;
+
         try {
-            // Validación de campos numéricos (usando 0.0 o 0 si están vacíos para evitar error, o forzar la entrada)
-            // Optamos por forzar la entrada para la actualización.
-            if (nuevoPrecioCompraStr.isEmpty() || nuevoPrecioVentaStr.isEmpty() || 
-                nuevoStockStr.isEmpty() || nuevoMinStockStr.isEmpty() || nuevoMaxStockStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Los campos de precio y stock (incluyendo min/max) no pueden estar vacíos.");
+            if (nuevoPrecioCompraStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El campo Precio Compra no puede estar vacío.");
                 return;
             }
-
             nuevoPrecioCompra = Double.parseDouble(nuevoPrecioCompraStr);
-            nuevoPrecioVenta = Double.parseDouble(nuevoPrecioVentaStr);
+
+            if (!porcentajeStr.isEmpty()) {
+                // Intentamos parsear porcentaje si el usuario lo ingresó
+                try {
+                    porcentaje = Double.parseDouble(porcentajeStr);
+                    usarPorcentaje = true;
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Porcentaje de venta inválido.");
+                    return;
+                }
+            }
+
+            if (usarPorcentaje) {
+                // recalcula precio de venta a partir del precio de compra y porcentaje
+                nuevoPrecioVenta = nuevoPrecioCompra * (1.0 + porcentaje / 100.0);
+                nuevoPrecioVenta = Math.round(nuevoPrecioVenta * 100.0) / 100.0;
+            } else {
+                // Si no se proporcionó porcentaje, requiere precio de venta manual
+                if (nuevoPrecioVentaStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "El campo Precio Venta no puede estar vacío si no indicas % Venta.");
+                    return;
+                }
+                nuevoPrecioVenta = Double.parseDouble(nuevoPrecioVentaStr);
+            }
+
+            // Stocks
+            if (nuevoStockStr.isEmpty() || nuevoMinStockStr.isEmpty() || nuevoMaxStockStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Los campos de stock (incluyendo min/max) no pueden estar vacíos.");
+                return;
+            }
             nuevoStock = Integer.parseInt(nuevoStockStr);
             nuevoMinStock = Integer.parseInt(nuevoMinStockStr);
             nuevoMaxStock = Integer.parseInt(nuevoMaxStockStr);
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Valores numéricos inválidos en precios, stock o mínimos/máximos.");
+            JOptionPane.showMessageDialog(this, "Valores numéricos inválidos en precios, stock o porcentaje.");
             return;
         }
 
@@ -800,7 +829,7 @@ private void cargarMedicamentos() {
         PreparedStatement psSelect = null, psUpdate = null;
         ResultSet rsActual = null;
 
-        // 3. --- Validar que se haya seleccionado un producto ---
+        // 3. Validar que haya un producto seleccionado
         if (codigoSeleccionado == null || codigoSeleccionado.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, seleccione un producto de la tabla para actualizar.");
             return;
@@ -809,10 +838,10 @@ private void cargarMedicamentos() {
         try {
             conn = Conexion.conectar();
 
-            // 4. --- Consulta para obtener valores actuales ---
+            // 4. Obtener valores actuales desde la BD
             String sqlConsulta = "SELECT * FROM Productos WHERE cod_barras = ?";
             psSelect = conn.prepareStatement(sqlConsulta);
-            psSelect.setString(1, codigoSeleccionado); 
+            psSelect.setString(1, codigoSeleccionado);
             rsActual = psSelect.executeQuery();
 
             if (!rsActual.next()) {
@@ -820,7 +849,26 @@ private void cargarMedicamentos() {
                 return;
             }
 
-            // 5. --- Comparación de cambios (Alineado con TODOS los campos) ---
+            // Leer porcentaje actual en BD (nombre de columna en tu BD: porcentajeV)
+            double porcentajeActualBD = 0.0;
+            try {
+                Object pObj = rsActual.getObject("porcentajeV");
+                if (pObj != null) {
+                    porcentajeActualBD = rsActual.getDouble("porcentajeV");
+                }
+            } catch (SQLException ex) {
+                // Si por alguna razón no existe la columna, dejamos 0.0 (pero debería existir según tu comentario)
+                porcentajeActualBD = 0.0;
+            }
+
+            // Determinar nuevo porcentaje a guardar en la BD: si el usuario ingresó uno, lo usamos; si no, mantenemos el que está en BD.
+            double nuevoPorcentajeBD = porcentajeActualBD;
+            if (usarPorcentaje) {
+                nuevoPorcentajeBD = porcentaje;
+                // Si el usuario ingresó porcentaje ya recalculamos nuevoPrecioVenta arriba
+            }
+
+            // 5. Comparación de cambios (ahora incluyendo posible cambio en porcentaje)
             boolean hayCambios =
                 !nuevoNomCom.equals(rsActual.getString("nom_com")) ||
                 !nuevaDescripcion.equals(rsActual.getString("descripcion")) ||
@@ -829,82 +877,79 @@ private void cargarMedicamentos() {
                 !nuevaPresentacion.equals(rsActual.getString("presentacion")) ||
                 !nuevaFarmaceutica.equals(rsActual.getString("farmaceutica")) ||
                 !nuevoTipo.equals(rsActual.getString("tipo")) ||
-                !nuevoCodBarras.equals(rsActual.getString("cod_barras")) || // Permite cambiar la PK
-                Math.abs(nuevoPrecioCompra - rsActual.getDouble("precio_compra")) > 0.001 || // Comparación de doubles
-                Math.abs(nuevoPrecioVenta - rsActual.getDouble("precio_venta")) > 0.001 || // Comparación de doubles
+                !nuevoCodBarras.equals(rsActual.getString("cod_barras")) ||
+                Math.abs(nuevoPrecioCompra - rsActual.getDouble("precio_compra")) > 0.001 ||
+                Math.abs(nuevoPrecioVenta - rsActual.getDouble("precio_venta")) > 0.001 ||
                 nuevoStock != rsActual.getInt("stock") ||
                 nuevoMinStock != rsActual.getInt("min_stock") ||
                 nuevoMaxStock != rsActual.getInt("max_stock") ||
-                nuevoActivo != rsActual.getInt("activo") || 
-                !java.util.Objects.equals(nuevaFechaCad, rsActual.getString("fecha_cad")); 
+                nuevoActivo != rsActual.getInt("activo") ||
+                !java.util.Objects.equals(nuevaFechaCad, rsActual.getString("fecha_cad")) ||
+                (usarPorcentaje && Math.abs(nuevoPorcentajeBD - porcentajeActualBD) > 0.001);
 
             if (!hayCambios) {
                 JOptionPane.showMessageDialog(this, "No se realizaron cambios.");
                 return;
             }
 
+            // Cerrar rsSelect porque ya leímos todo lo necesario
             rsActual.close();
             psSelect.close();
 
-            // 6. --- Sentencia UPDATE COMPLETA (15 campos + WHERE) ---
+            // 6. Preparar UPDATE (incluimos porcentajeV como columna REAL en la BD)
             String sqlUpdate = "UPDATE Productos SET " +
                 "cod_barras = ?, nom_com = ?, descripcion = ?, contenido = ?, " +
                 "gramaje = ?, presentacion = ?, farmaceutica = ?, tipo = ?, " +
-                "precio_compra = ?, precio_venta = ?, fecha_cad = ?, stock = ?, " +
-                "min_stock = ?, max_stock = ?, activo = ? " + 
-                "WHERE cod_barras = ?"; 
+                "precio_compra = ?, precio_venta = ?, porcentajeV = ?, fecha_cad = ?, stock = ?, " +
+                "min_stock = ?, max_stock = ?, activo = ? " +
+                "WHERE cod_barras = ?";
 
             psUpdate = conn.prepareStatement(sqlUpdate);
 
-            // 7. --- Asignación de Parámetros ---
-
-            // 1. cod_barras (Nuevo valor)
-            psUpdate.setString(1, nuevoCodBarras.isEmpty() ? null : nuevoCodBarras); 
-            // 2. nom_com
+            // 7. Asignación de parámetros (asegúrate que los índices coinciden con el SQL)
+            psUpdate.setString(1, nuevoCodBarras.isEmpty() ? null : nuevoCodBarras);
             psUpdate.setString(2, nuevoNomCom);
-            // 3. descripcion
             psUpdate.setString(3, nuevaDescripcion.isEmpty() ? null : nuevaDescripcion);
-            // 4. contenido
             psUpdate.setString(4, nuevoContenido.isEmpty() ? null : nuevoContenido);
-            // 5. gramaje
             psUpdate.setString(5, nuevoGramaje.isEmpty() ? null : nuevoGramaje);
-            // 6. presentacion
             psUpdate.setString(6, nuevaPresentacion.isEmpty() ? null : nuevaPresentacion);
-            // 7. farmaceutica
             psUpdate.setString(7, nuevaFarmaceutica.isEmpty() ? null : nuevaFarmaceutica);
-            // 8. tipo
             psUpdate.setString(8, nuevoTipo.isEmpty() ? null : nuevoTipo);
-            // 9. precio_compra (REAL)
             psUpdate.setDouble(9, nuevoPrecioCompra);
-            // 10. precio_venta (REAL)
             psUpdate.setDouble(10, nuevoPrecioVenta);
-            // 11. fecha_cad (TEXT)
+            // 11 -> porcentajeV
+            psUpdate.setDouble(11, nuevoPorcentajeBD);
+            // 12 -> fecha_cad
             if (nuevaFechaCad == null || nuevaFechaCad.trim().isEmpty()) {
-                psUpdate.setNull(11, java.sql.Types.VARCHAR);
+                psUpdate.setNull(12, java.sql.Types.VARCHAR);
             } else {
-                psUpdate.setString(11, nuevaFechaCad);
+                psUpdate.setString(12, nuevaFechaCad);
             }
-            // 12. stock (INTEGER)
-            psUpdate.setInt(12, nuevoStock);
-            // 13. min_stock (INTEGER)
-            psUpdate.setInt(13, nuevoMinStock);
-            // 14. max_stock (INTEGER)
-            psUpdate.setInt(14, nuevoMaxStock);
-            // 15. activo (INTEGER)
-            psUpdate.setInt(15, nuevoActivo); 
-
-            // 16. WHERE cod_barras (Valor original)
-            psUpdate.setString(16, codigoSeleccionado); 
+            // 13 -> stock
+            psUpdate.setInt(13, nuevoStock);
+            // 14 -> min_stock
+            psUpdate.setInt(14, nuevoMinStock);
+            // 15 -> max_stock
+            psUpdate.setInt(15, nuevoMaxStock);
+            // 16 -> activo
+            psUpdate.setInt(16, nuevoActivo);
+            // 17 -> WHERE cod_barras (valor original)
+            psUpdate.setString(17, codigoSeleccionado);
 
             int resultado = psUpdate.executeUpdate();
 
-            // 8. --- Manejo de resultado ---
+            // 8. Manejo de resultado
             if (resultado > 0) {
                 JOptionPane.showMessageDialog(this, "Producto actualizado correctamente.");
-                // Actualiza la tabla y limpia la interfaz
-                cargarMedicamentos(); 
-                limpiarCampos(); 
-                codigoSeleccionado = null; // Limpiamos el ID seleccionado
+
+                // Mostrar en UI los valores guardados
+                txtPrecio_venta.setText(String.valueOf(nuevoPrecioVenta));
+                txtPorcentajeV.setText(String.valueOf(nuevoPorcentajeBD));
+
+                // Refrescar tabla y limpiar campos
+                cargarMedicamentos();
+                limpiarCampos();
+                codigoSeleccionado = null;
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo actualizar el producto.");
             }
@@ -913,7 +958,7 @@ private void cargarMedicamentos() {
             JOptionPane.showMessageDialog(this, "Error al actualizar: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            // 9. --- Cierre de recursos ---
+            // Cierre de recursos
             try {
                 if (rsActual != null) rsActual.close();
                 if (psSelect != null) psSelect.close();
@@ -926,11 +971,19 @@ private void cargarMedicamentos() {
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void tablaCatalogoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaCatalogoMouseClicked
-    int fila = tablaCatalogo.getSelectedRow();
-        if (fila == -1) return;
+        int filaView = tablaCatalogo.getSelectedRow();
+        if (filaView == -1) return;
 
-        // Obtén el CÓDIGO DE BARRAS, asumiendo que está en la columna 4 de tu JTable
-        String codigoDeLaFila = tablaCatalogo.getValueAt(fila, 4).toString();
+        // Si el JTable está ordenado/filtrado, convertir a índice del modelo
+        int fila = tablaCatalogo.convertRowIndexToModel(filaView);
+
+        // cod_barras está en la columna 6 (índice 6) según el modelo que usas
+        Object val = tablaCatalogo.getModel().getValueAt(fila, 6);
+        if (val == null) {
+            JOptionPane.showMessageDialog(this, "Código de barras no disponible para la fila seleccionada.");
+            return;
+        }
+        String codigoDeLaFila = val.toString();
 
         Connection conn = null;
         PreparedStatement ps = null;
@@ -949,40 +1002,50 @@ private void cargarMedicamentos() {
 
             if (rs.next()) {
 
-                // 1. Asigna el código de barras a la variable de clase (para Update/Delete)
-                codigoSeleccionado = rs.getString("cod_barras"); 
+                // Guarda el código seleccionado para update/delete
+                codigoSeleccionado = rs.getString("cod_barras");
 
-                // 2. Carga todos los valores en los JTextFields
-
-                // Campos de Texto
+                // Rellenar los JTextFields con los valores de la BD
                 txtCod_barras.setText(rs.getString("cod_barras"));
                 txtNom_com.setText(rs.getString("nom_com"));
                 txtDescripcion.setText(rs.getString("descripcion"));
                 txtContenido.setText(rs.getString("contenido"));
                 txtGramaje.setText(rs.getString("gramaje"));
+                txtPresentacion.setText(rs.getString("presentacion"));
                 txtFarmaceutica.setText(rs.getString("farmaceutica"));
-                txtTipo.setText(rs.getString("tipo")); // Campo 'tipo'
-                txtFecha_cad.setText(rs.getString("fecha_cad")); // Campo 'fecha_cad'
+                txtTipo.setText(rs.getString("tipo"));
+                txtFecha_cad.setText(rs.getString("fecha_cad"));
 
-                // Campos Numéricos (convertidos a String)
+                // precio_compra (REAL) - usa getObject por si es null
+                Object pcObj = rs.getObject("precio_compra");
+                txtPrecio_compra.setText(pcObj == null ? "" : String.valueOf(rs.getDouble("precio_compra")));
 
-                // Nota: txtPorcentajeV no está en la tabla, si es un campo calculado, se debe manejar aparte.
-                // Aquí cargamos los que sí están en la tabla.
-
-                // precio_compra (REAL)
-                txtPrecio_compra.setText(String.valueOf(rs.getDouble("precio_compra"))); 
                 // precio_venta (REAL)
-                txtPrecio_venta.setText(String.valueOf(rs.getDouble("precio_venta"))); 
-                // stock (INTEGER)
-                txtStock.setText(String.valueOf(rs.getInt("stock")));
-                // min_stock (INTEGER)
-                txtMin_stock.setText(String.valueOf(rs.getInt("min_stock")));
-                // max_stock (INTEGER)
-                txtMax_stock.setText(String.valueOf(rs.getInt("max_stock")));
+                Object pvObj = rs.getObject("precio_venta");
+                txtPrecio_venta.setText(pvObj == null ? "" : String.valueOf(rs.getDouble("precio_venta")));
 
-                // Si tienes un checkbox/textfield para 'activo', aquí iría su asignación
-                // Por ejemplo, si fuera un campo de texto: 
-                // txtActivo.setText(String.valueOf(rs.getInt("activo"))); 
+                // porcentajeV (REAL) - puede ser null
+                Object porObj = rs.getObject("porcentajeV");
+                if (porObj == null) {
+                    txtPorcentajeV.setText("");
+                } else {
+                    // formatear a 2 decimales para mejor visual
+                    double por = rs.getDouble("porcentajeV");
+                    txtPorcentajeV.setText(String.format(Locale.ROOT,"%.2f", por));
+                }
+
+                // stock (INTEGER)
+                Object stockObj = rs.getObject("stock");
+                txtStock.setText(stockObj == null ? "" : String.valueOf(rs.getInt("stock")));
+                // min_stock
+                Object minObj = rs.getObject("min_stock");
+                txtMin_stock.setText(minObj == null ? "" : String.valueOf(rs.getInt("min_stock")));
+                // max_stock
+                Object maxObj = rs.getObject("max_stock");
+                txtMax_stock.setText(maxObj == null ? "" : String.valueOf(rs.getInt("max_stock")));
+
+                // Si quieres, recalcula o muestra otros campos derivados aquí
+
             }
 
         } catch (SQLException e) {

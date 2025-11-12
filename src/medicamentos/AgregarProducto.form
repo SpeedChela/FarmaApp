@@ -43,96 +43,113 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" attributes="0">
-                  <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                           <Component id="jButton1" min="-2" pref="120" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
+                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="txtStock" alignment="0" min="-2" pref="54" max="-2" attributes="0"/>
-                                      <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" alignment="0" attributes="0">
-                                          <Component id="txtStockMin" min="-2" pref="43" max="-2" attributes="0"/>
-                                          <EmptySpace max="32767" attributes="0"/>
-                                      </Group>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                  <Group type="103" groupAlignment="1" attributes="0">
                                       <Group type="102" attributes="0">
-                                          <Component id="jLabel8" max="32767" attributes="0"/>
-                                          <EmptySpace max="32767" attributes="0"/>
+                                          <Component id="txtGramaje" min="-2" pref="155" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="txtPrecio_compra" min="-2" pref="90" max="-2" attributes="0"/>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Component id="txtPorcentajeV" min="-2" pref="90" max="-2" attributes="0"/>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="jLabel18" min="-2" pref="108" max="-2" attributes="0"/>
+                                              <Component id="txtPrecio_venta" min="-2" pref="90" max="-2" attributes="0"/>
+                                          </Group>
+                                          <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Component id="jLabel12" min="-2" pref="108" max="-2" attributes="0"/>
+                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                              <Component id="jLabel13" min="-2" pref="108" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
+                                              <Component id="jLabel14" min="-2" pref="108" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Component id="txtCod_barras" min="-2" pref="100" max="-2" attributes="0"/>
+                                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                                              <Component id="txtNom_com" min="-2" pref="134" max="-2" attributes="0"/>
+                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                              <Component id="txtDescripcion" min="-2" pref="256" max="-2" attributes="0"/>
+                                          </Group>
                                       </Group>
                                   </Group>
-                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                      <Component id="txtGramaje" pref="75" max="32767" attributes="0"/>
-                                      <Component id="jLabel14" max="32767" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="txtContenido" min="-2" pref="93" max="-2" attributes="0"/>
-                                      <Component id="jLabel4" min="-2" pref="73" max="-2" attributes="0"/>
-                                  </Group>
+                                  <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                      <Component id="txtLab" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="txtNombre" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="jLabel2" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" alignment="0" attributes="0">
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="txtActivo" alignment="0" min="-2" pref="143" max="-2" attributes="0"/>
-                                              <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="txtCodigo" alignment="0" min="-2" pref="128" max="-2" attributes="0"/>
-                                              <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
-                                              <Component id="txtPrecio" min="-2" pref="74" max="-2" attributes="0"/>
-                                          </Group>
+                                          <Component id="jLabel15" min="-2" pref="108" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="51" max="-2" attributes="0"/>
+                                          <Component id="jLabel16" min="-2" pref="108" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="jLabel17" min="-2" pref="108" max="-2" attributes="0"/>
                                       </Group>
-                                      <Component id="jLabel11" min="-2" pref="134" max="-2" attributes="0"/>
-                                      <Group type="102" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <EmptySpace min="-2" pref="148" max="-2" attributes="0"/>
+                                          <Component id="btnAgregar" min="-2" pref="221" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
                                           <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="txtStockMax" alignment="0" min="-2" pref="78" max="-2" attributes="0"/>
-                                              <Component id="jLabel9" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Group type="102" attributes="0">
-                                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                                  <Component id="txtPresentacion" min="-2" pref="89" max="-2" attributes="0"/>
+                                              <Group type="102" alignment="0" attributes="0">
+                                                  <Component id="jLabel19" min="-2" pref="108" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="jLabel20" min="-2" pref="108" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="jLabel21" min="-2" pref="108" max="-2" attributes="0"/>
                                               </Group>
                                               <Group type="102" alignment="0" attributes="0">
-                                                  <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                                                  <Component id="jLabel15" min="-2" pref="96" max="-2" attributes="0"/>
+                                                  <Component id="txtFecha_cad" min="-2" pref="90" max="-2" attributes="0"/>
+                                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                                  <Component id="txtStock" min="-2" pref="90" max="-2" attributes="0"/>
+                                                  <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+                                                  <Component id="txtMin_stock" min="-2" pref="90" max="-2" attributes="0"/>
                                               </Group>
                                           </Group>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="txtMax_stock" min="-2" pref="90" max="-2" attributes="0"/>
+                                              <Component id="jLabel22" min="-2" pref="108" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="jLabel23" min="-2" pref="108" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                                          <Component id="jLabel24" min="-2" pref="108" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jLabel25" min="-2" pref="108" max="-2" attributes="0"/>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Component id="jLabel26" min="-2" pref="108" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="txtPresentacion" min="-2" pref="118" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="txtTipo" min="-2" pref="90" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="txtContenido" min="-2" pref="118" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+                                          <Component id="txtFarmaceutica" min="-2" pref="118" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
-              </Group>
-              <Group type="102" attributes="0">
-                  <EmptySpace min="-2" pref="152" max="-2" attributes="0"/>
-                  <Component id="btnAgregar" min="-2" pref="221" max="-2" attributes="0"/>
-                  <EmptySpace pref="189" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -144,56 +161,62 @@
                       <Component id="jButton1" alignment="3" min="-2" pref="45" max="-2" attributes="0"/>
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="txtNombre" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                      <Component id="txtActivo" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                      <Component id="txtCodigo" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                      <Component id="txtPrecio" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel14" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="txtCod_barras" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtNom_com" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtDescripcion" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel17" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="txtStock" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                          <Component id="txtStockMin" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                          <Component id="txtStockMax" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                          <Component id="txtGramaje" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                          <Component id="txtContenido" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="txtPresentacion" min="-2" pref="32" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="txtPrecio_compra" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtGramaje" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtPorcentajeV" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtPrecio_venta" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="32767" attributes="0"/>
-                          <Component id="txtLab" min="-2" pref="32" max="-2" attributes="0"/>
-                          <EmptySpace pref="181" max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="130" max="-2" attributes="0"/>
-                          <Component id="btnAgregar" min="-2" pref="55" max="-2" attributes="0"/>
-                          <EmptySpace pref="54" max="32767" attributes="0"/>
-                      </Group>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel21" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel22" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="txtMin_stock" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtStock" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtFecha_cad" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtMax_stock" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel24" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel23" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel26" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="txtTipo" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtPresentacion" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtFarmaceutica" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="txtContenido" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="31" max="32767" attributes="0"/>
+                  <Component id="btnAgregar" min="-2" pref="55" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -227,133 +250,6 @@
             <Property name="text" type="java.lang.String" value="Agregar Producto"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel2">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Nombre Comercial"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel3">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Descripcion (Activo)"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel5">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Codigo de Barras"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel6">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Precio:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel7">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Stock"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel8">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Stock Min"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel9">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Stock Max"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel10">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Farmaceutica"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel11">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Fecha de Caducidad"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtNombre">
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtActivo">
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtCodigo">
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtPrecio">
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtPrecioActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtStock">
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtStockActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtStockMin">
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtStockMax">
-          <Properties>
-            <Property name="text" type="java.lang.String" value=" "/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtStockMaxActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtLab">
-        </Component>
         <Component class="javax.swing.JButton" name="btnAgregar">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -371,7 +267,29 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAgregarActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JTextField" name="txtGramaje">
+        <Component class="javax.swing.JTextField" name="txtCod_barras">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel12">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Codigo Barras"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel13">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Nombre"/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel14">
           <Properties>
@@ -381,23 +299,12 @@
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="0" green="0" red="0" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Gramaje:"/>
+            <Property name="text" type="java.lang.String" value="Descripcion"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="txtContenido">
+        <Component class="javax.swing.JTextField" name="txtNom_com">
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel4">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="14" style="1"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="0" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Contenido:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtPresentacion">
+        <Component class="javax.swing.JTextField" name="txtDescripcion">
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel15">
           <Properties>
@@ -407,8 +314,153 @@
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="0" green="0" red="0" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Presentacion:"/>
+            <Property name="text" type="java.lang.String" value="Gramaje"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel16">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Precio Compra"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel17">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="% Venta"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel18">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Precio Venta"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel19">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Fecha Cad"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtGramaje">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtPrecio_compra">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtFecha_cad">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtPorcentajeV">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel20">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Stock"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel21">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Min Stock"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel22">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Max Stock"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel23">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Presentacion"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel24">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Tipo"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel25">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Contenido"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel26">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="14" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Farmaceutica"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtPrecio_venta">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtStock">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtMin_stock">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtMax_stock">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtTipo">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtPresentacion">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtFarmaceutica">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtContenido">
         </Component>
       </SubComponents>
     </Container>
