@@ -341,6 +341,11 @@ public class Venta extends javax.swing.JFrame {
         btnTickets.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnTickets.setForeground(new java.awt.Color(0, 0, 0));
         btnTickets.setText("Tickets");
+        btnTickets.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTicketsActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -580,6 +585,12 @@ public class Venta extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error al registrar venta: " + e.getMessage());
         }
     }//GEN-LAST:event_btnPagarActionPerformed
+
+    private void btnTicketsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTicketsActionPerformed
+        VisorTickets vt = new VisorTickets(rol,idUsuario);
+        vt.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnTicketsActionPerformed
 
     /**
      * @param args the command line arguments
