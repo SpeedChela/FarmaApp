@@ -222,6 +222,7 @@ private void cargarMedicamentos() {
         txtMax_stock = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
         txtPresentacion = new javax.swing.JTextField();
+        btnLowStock = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -565,6 +566,16 @@ private void cargarMedicamentos() {
                 .addContainerGap(54, Short.MAX_VALUE))
         );
 
+        btnLowStock.setBackground(new java.awt.Color(255, 204, 0));
+        btnLowStock.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnLowStock.setForeground(new java.awt.Color(0, 0, 0));
+        btnLowStock.setText("Stock Bajo");
+        btnLowStock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLowStockActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout MainLayout = new javax.swing.GroupLayout(Main);
         Main.setLayout(MainLayout);
         MainLayout.setHorizontalGroup(
@@ -592,6 +603,8 @@ private void cargarMedicamentos() {
                                 .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(29, 29, 29)
                                 .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(29, 29, 29)
+                                .addComponent(btnLowStock)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(MainLayout.createSequentialGroup()
                                 .addGap(0, 16, Short.MAX_VALUE)
@@ -609,21 +622,22 @@ private void cargarMedicamentos() {
                         .addComponent(jLabel2)
                         .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(6, 6, 6)
+                .addGroup(MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(MainLayout.createSequentialGroup()
+                        .addComponent(btnLowStock, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(2, 2, 2))
+                    .addGroup(MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(buscar, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
+                        .addGroup(MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Resetbtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(MainLayout.createSequentialGroup()
-                        .addGap(94, 94, 94)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(MainLayout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addGroup(MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(buscar, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
-                            .addGroup(MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(Resetbtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(24, 24, 24))
         );
 
@@ -1124,6 +1138,69 @@ private void cargarMedicamentos() {
 
     }//GEN-LAST:event_btnEliminarActionPerformed
 
+    private void btnLowStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLowStockActionPerformed
+           // Cargar productos con stock bajo (stock <= min_stock)
+            DefaultTableModel modelo = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "Nombre Comercial", "Gramaje", "Presentación", "Descripción", "Precio", "Stock", "cod_barras"
+                }
+            ) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            tablaCatalogo.setModel(modelo);
+
+            // Intentar ocultar la columna cod_barras (índice 6)
+            try {
+                tablaCatalogo.getColumnModel().getColumn(6).setMinWidth(0);
+                tablaCatalogo.getColumnModel().getColumn(6).setMaxWidth(0);
+                tablaCatalogo.getColumnModel().getColumn(6).setWidth(0);
+            } catch (Exception ex) {
+                // ignora si aún no se ha renderizado la tabla
+                System.err.println("Warning ocultando columna cod_barras: " + ex.getMessage());
+            }
+
+            String sql = "SELECT nom_com, gramaje, presentacion, descripcion, precio_venta, stock, cod_barras " +
+                         "FROM Productos " +
+                         "WHERE activo = 1 AND min_stock IS NOT NULL AND stock < min_stock " +
+                         "ORDER BY stock ASC, nom_com ASC";
+
+            try (Connection conn = Conexion.conectar();
+                 PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+
+                boolean hay = false;
+                while (rs.next()) {
+                    hay = true;
+                    Object[] fila = {
+                        rs.getString("nom_com"),
+                        rs.getString("gramaje"),
+                        rs.getString("presentacion"),
+                        rs.getString("descripcion"),
+                        rs.getDouble("precio_venta"),
+                        rs.getInt("stock"),
+                        rs.getString("cod_barras")
+                    };
+                    modelo.addRow(fila);
+                }
+
+                if (!hay) {
+                    JOptionPane.showMessageDialog(this, "No se encontraron productos con stock bajo.");
+                } else {
+                    // opcional: seleccionar la primera fila
+                    if (tablaCatalogo.getRowCount() > 0) tablaCatalogo.setRowSelectionInterval(0, 0);
+                }
+
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al buscar productos con stock bajo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+    }//GEN-LAST:event_btnLowStockActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1153,6 +1230,7 @@ private void cargarMedicamentos() {
     private javax.swing.JPanel Main;
     private javax.swing.JButton Resetbtn;
     private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnLowStock;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JButton buscar;
     private javax.swing.JButton jButton2;

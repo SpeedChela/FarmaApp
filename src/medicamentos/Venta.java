@@ -179,6 +179,8 @@ public class Venta extends javax.swing.JFrame {
         }else{
             btnTickets.setEnabled(false);
         }
+        
+        
                 
         //  Añadimos columna de código de barras como referencia interna
         DefaultTableModel modelo = new DefaultTableModel(
@@ -244,6 +246,65 @@ public class Venta extends javax.swing.JFrame {
 
         labelTotal.setText(String.format("%.2f", total));
 
+    }
+    
+    // Busca el producto por código y lo agrega al carrito (reutilizable)
+    private void buscarYAgregarProductoPorCodigo(String codigo) {
+        if (codigo == null || codigo.trim().isEmpty()) return;
+        codigo = codigo.trim();
+
+        try (Connection conn = Conexion.conectar();
+             PreparedStatement ps = conn.prepareStatement(
+                 "SELECT nom_com, precio_venta, stock, gramaje FROM Productos WHERE cod_barras = ? AND activo = 1 AND stock > 0"
+             )) {
+
+            ps.setString(1, codigo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String nombre = rs.getString("nom_com");
+                    double precio = rs.getDouble("precio_venta");
+                    String gramaje = "";
+                    try { gramaje = rs.getString("gramaje"); } catch (Exception ex) { gramaje = ""; }
+
+                    DefaultTableModel modelo = (DefaultTableModel) tableVenta.getModel();
+                    modelo.addRow(new Object[]{
+                        codigo,
+                        nombre + (gramaje != null && !gramaje.isEmpty() ? " - " + gramaje : ""),
+                        1,
+                        "$" + String.format("%.2f", precio),
+                        "$" + String.format("%.2f", precio),
+                        "Eliminar"
+                    });
+
+                    actualizarSubtotal();
+                    // opcional: sonido de confirmación
+                    java.awt.Toolkit.getDefaultToolkit().beep();
+                    // limpiar campo para la siguiente lectura
+                    txtBarras.setText("");
+                } else {
+                    // el beep indica error y mostramos mensaje no intrusivo
+                    java.awt.Toolkit.getDefaultToolkit().beep();
+                    JOptionPane.showMessageDialog(this, "Producto no encontrado o sin stock: " + codigo, "No encontrado", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage(), "Error BD", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Método central para procesar un código escaneado
+    private void procesarCodigoEscaneado(String codigo) {
+        if (codigo == null) return;
+        codigo = codigo.trim();
+        if (codigo.isEmpty()) return;
+
+        // mostrar en el campo (opcional) y procesar
+        txtBarras.setText(codigo);
+        buscarYAgregarProductoPorCodigo(codigo);
+
+        // asegurar foco en el campo para la siguiente lectura
+        txtBarras.requestFocusInWindow();
     }
     
 
