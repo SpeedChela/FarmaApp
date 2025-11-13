@@ -6,7 +6,6 @@ import java.util.prefs.Preferences;
 
 /**
  * Manejo de rutas de datos de la aplicación (portable y poco visible).
- * Devuelve directorios por defecto para almacenar tickets (AppData / Application Support / .local/share).
  */
 public final class AppPaths {
     private static final String APP_NAME = "FarmaApp";
@@ -40,8 +39,8 @@ public final class AppPaths {
     }
 
     /**
-     * Carpeta actual de tickets: devuelve la carpeta almacenada en preferences si existe,
-     * si no devuelve <appData>/tickets (no crea nada aquí).
+     * Carpeta de tickets preferida si está guardada en Preferences,
+     * si no devuelve <appData>/tickets (no crea).
      */
     public static File getStoredOrDefaultTicketsDir() {
         Preferences prefs = Preferences.userRoot().node(PREF_NODE);
@@ -60,7 +59,7 @@ public final class AppPaths {
     }
 
     /**
-     * Asegura que la carpeta exista (intenta crearla) y devuelve la carpeta final.
+     * Intenta asegurar que la carpeta exista (intenta crearla) y devuelve la carpeta final.
      * Si no puede crearla devuelve null.
      */
     public static File ensureTicketsDirExists() {

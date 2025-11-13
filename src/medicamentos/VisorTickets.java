@@ -3,6 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package medicamentos;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.sql.*;
 
 /**
  *
@@ -20,11 +27,86 @@ public class VisorTickets extends javax.swing.JFrame {
     }
     private int rol;
     private int idUsuario;
+    private JTable table;
+    private DefaultTableModel model;
+
     
     public VisorTickets(int rol, int idUsuario) {
         initComponents();
         this.rol = rol;
         this.idUsuario = idUsuario;
+        setTitle("Visor de Tickets");
+        setSize(800, 450);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        initUI();
+        cargarTickets();
+    }
+     private void initUI() {
+        model = new DefaultTableModel(new Object[]{"ID", "Fecha", "Vendedor", "Total", "Estado", "RutaPDF"}, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        table = new JTable(model);
+        // ocultar columna ruta_pdf
+        table.getColumnModel().getColumn(5).setMinWidth(0);
+        table.getColumnModel().getColumn(5).setMaxWidth(0);
+        table.getColumnModel().getColumn(5).setWidth(0);
+
+        JScrollPane scroll = new JScrollPane(table);
+        add(scroll, BorderLayout.CENTER);
+
+        // doble click abre pdf
+        table.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    abrirTicketSeleccionado();
+                }
+            }
+        });
+    }
+
+    public void cargarTickets() {
+        model.setRowCount(0);
+        String sql = "SELECT id, fecha, COALESCE(vendedor, (SELECT nombre FROM Usuarios WHERE id = Tickets.id_usuario)) AS vendedor, total_final, estado, ruta_pdf FROM Tickets ORDER BY fecha DESC";
+        try (Connection conn = Conexion.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                long id = rs.getLong("id");
+                String fecha = rs.getString("fecha");
+                String vendedor = rs.getString("vendedor");
+                double total = rs.getDouble("total_final");
+                String estado = rs.getString("estado");
+                String ruta = rs.getString("ruta_pdf");
+                model.addRow(new Object[]{id, fecha, vendedor, String.format("%.2f", total), estado, ruta});
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar tickets: " + ex.getMessage());
+        }
+    }
+
+    private void abrirTicketSeleccionado() {
+        int row = table.getSelectedRow();
+        if (row < 0) return;
+        String ruta = (String) model.getValueAt(row, 5);
+        if (ruta == null || ruta.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay PDF guardado para este ticket.");
+            return;
+        }
+        File f = new File(ruta);
+        if (!f.exists()) {
+            JOptionPane.showMessageDialog(this, "Archivo PDF no encontrado: " + ruta);
+            return;
+        }
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(f);
+            } else {
+                JOptionPane.showMessageDialog(this, "No es posible abrir archivos en esta plataforma.");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error abriendo PDF: " + ex.getMessage());
+        }
     }
 
     /**
@@ -42,7 +124,7 @@ public class VisorTickets extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -67,6 +149,11 @@ public class VisorTickets extends javax.swing.JFrame {
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Regresar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -105,13 +192,17 @@ public class VisorTickets extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        Venta v = new Venta(rol, idUsuario);
+        v.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

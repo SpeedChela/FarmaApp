@@ -76,9 +76,9 @@ public class MenuPrincipal extends javax.swing.JFrame {
             StringBuilder alerta = new StringBuilder();
 
             while (rs.next()) {
-                String nombre = rs.getString("nombre_comercial");
+                String nombre = rs.getString("nom_com");
                 int stock = rs.getInt("stock");
-                int minimo = rs.getInt("minimoStock");
+                int minimo = rs.getInt("min_stock");
 
                 alerta.append("- ").append(nombre)
                     .append(" (stock: ").append(stock)
