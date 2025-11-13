@@ -8,12 +8,11 @@ package medicamentos;
 import java.awt.Component;
 import javax.swing.JOptionPane;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -38,55 +37,90 @@ public class Venta extends javax.swing.JFrame {
         private JFrame parent;
         private final int idUsuario;
 
-    public ButtonEditor(JCheckBox checkBox, JTable tableVenta, int rol, int idUsuario, JFrame parent) {
-        super(checkBox);
-        this.table = tableVenta;
-        this.rol = rol;
-        this.parent = parent;
-        this.idUsuario = idUsuario;
+        public ButtonEditor(JCheckBox checkBox, JTable tableVenta, int rol, int idUsuario, JFrame parent) {
+            super(checkBox);
+            this.table = tableVenta;
+            this.rol = rol;
+            this.parent = parent;
+            this.idUsuario = idUsuario;
 
-        button = new JButton("Eliminar");
-        button.addActionListener(e -> {
-            fireEditingStopped();
+            button = new JButton("Eliminar");
+            button.addActionListener(e -> {
+                fireEditingStopped();
 
-            if (selectedRow < 0 || selectedRow >= table.getRowCount()) {
-                JOptionPane.showMessageDialog(parent, "Fila no válida.");
-                return;
-            }
+                if (selectedRow < 0 || selectedRow >= table.getRowCount()) {
+                    JOptionPane.showMessageDialog(parent, "Fila no válida.");
+                    return;
+                }
 
-            String codBarras = table.getValueAt(selectedRow, 0).toString(); // Supone columna 0 oculta
-            int idProducto = -1;
+                String codBarras = String.valueOf(table.getValueAt(selectedRow, 0)); // columna 0 oculta con cod_barras
+                int cantidad = 1;
+                double precioUnit = 0.0;
+                try {
+                    Object cantObj = table.getValueAt(selectedRow, 2);
+                    cantidad = Integer.parseInt(String.valueOf(cantObj));
+                } catch (Exception ex) {
+                    cantidad = 1;
+                }
+                try {
+                    String precioStr = String.valueOf(table.getValueAt(selectedRow, 3)).replace("$", "").trim();
+                    precioUnit = Double.parseDouble(precioStr);
+                } catch (Exception ex) {
+                    precioUnit = 0.0;
+                }
 
-            try (Connection conn = Conexion.conectar();
-                 PreparedStatement psBuscar = conn.prepareStatement("SELECT id FROM Productos WHERE codigo_barras = ?")) {
+                double subtotal = Math.round(precioUnit * cantidad * 100.0) / 100.0;
 
-                psBuscar.setString(1, codBarras);
-                ResultSet rs = psBuscar.executeQuery();
+                try (Connection conn = Conexion.conectar()) {
 
-                if (rs.next()) {
-                    idProducto = rs.getInt("id");
-
-                    // Insertar cancelación
-                    String sqlCancel = "INSERT INTO Cancelaciones (idUsuario, idProducto, fecha_cancelacion) VALUES (?, ?, ?)";
+                    // 1) Insertar registro en Cancelaciones (id_ticket = 0 para "sin ticket")
+                    String sqlCancel = "INSERT INTO Cancelaciones (id_ticket, cod_barras, cantidad_cancelada, motivo, id_usuario, fecha, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     try (PreparedStatement psInsert = conn.prepareStatement(sqlCancel)) {
-                        psInsert.setInt(1, idUsuario);
-                        psInsert.setInt(2, idProducto);
-                        psInsert.setString(3, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        psInsert.setInt(1, 0); // 0 -> sin ticket (cancelación en carrito)
+                        psInsert.setString(2, codBarras);
+                        psInsert.setInt(3, cantidad);
+                        psInsert.setString(4, "Cancelado en pantalla de venta");
+                        psInsert.setInt(5, idUsuario);
+                        psInsert.setString(6, new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
+                        psInsert.setDouble(7, subtotal);
                         psInsert.executeUpdate();
                     }
 
-                    // Remover producto visualmente
+                    // 2) Preguntar si se debe devolver al stock
+                    int devolver = JOptionPane.showConfirmDialog(parent,
+                        "¿Deseas devolver " + cantidad + " unidad(es) del producto al stock?",
+                        "Devolver al stock",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
+
+                    if (devolver == JOptionPane.YES_OPTION) {
+                        // Actualizar stock: sumar la cantidad cancelada
+                        String sqlUpdStock = "UPDATE Productos SET stock = stock + ? WHERE cod_barras = ?";
+                        try (PreparedStatement psUpd = conn.prepareStatement(sqlUpdStock)) {
+                            psUpd.setInt(1, cantidad);
+                            psUpd.setString(2, codBarras);
+                            int u = psUpd.executeUpdate();
+                            if (u > 0) {
+                                JOptionPane.showMessageDialog(parent, "Stock actualizado: se devolvieron " + cantidad + " unidad(es).");
+                            } else {
+                                JOptionPane.showMessageDialog(parent, "No se pudo actualizar el stock (producto no encontrado).");
+                            }
+                        }
+                    }
+
+                    // 3) Remover fila del carrito visualmente
                     ((DefaultTableModel) table.getModel()).removeRow(selectedRow);
 
-                } else {
-                    JOptionPane.showMessageDialog(parent, "Producto no encontrado en base de datos.");
-                }
+                    // 4) Recalcular totales en UI
+                    if (parent instanceof Venta) {
+                        ((Venta) parent).actualizarSubtotal();
+                    }
 
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(parent, "Error registrando eliminación: " + ex.getMessage());
-            }
-        });
-    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(parent, "Error registrando cancelación: " + ex.getMessage());
+                }
+            });
+        }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
@@ -113,7 +147,7 @@ public class Venta extends javax.swing.JFrame {
             }
         }
     }
-    
+
     class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
             setText("Eliminar");
@@ -129,7 +163,6 @@ public class Venta extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Venta.class.getName());
     private int rol;
     private int idUsuario;
-
     /**
      * Creates new form Venta
      */
@@ -139,12 +172,15 @@ public class Venta extends javax.swing.JFrame {
     
     public Venta(int rol, int idUsuario) {
         initComponents(); // generado por NetBeans
-       
-        
         this.rol = rol;
         this.idUsuario = idUsuario;
-
-        // 🛠 Añadimos columna de código de barras como referencia interna
+        if (rol == 1){
+            btnTickets.setEnabled(true);
+        }else{
+            btnTickets.setEnabled(false);
+        }
+                
+        //  Añadimos columna de código de barras como referencia interna
         DefaultTableModel modelo = new DefaultTableModel(
             new Object[][]{},
             new String[]{ "Código de barras", "Medicamento", "Cantidad", "Precio unitario", "Subtotal", "Borrar" }
@@ -155,6 +191,8 @@ public class Venta extends javax.swing.JFrame {
                 return column == 5;
             }
         };
+        
+        
 
         tableVenta.setModel(modelo);
 
@@ -174,7 +212,7 @@ public class Venta extends javax.swing.JFrame {
 
         setLocationRelativeTo(null);
 
-        // 🎭 Personalizar título según el rol
+        // Personalizar título según el rol
         if (rol == 1) {
             setTitle("Venta - Administrador");
         } else if (rol == 2) {
@@ -231,6 +269,7 @@ public class Venta extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         labelTotal = new javax.swing.JLabel();
+        btnTickets = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -298,6 +337,11 @@ public class Venta extends javax.swing.JFrame {
         labelTotal.setForeground(new java.awt.Color(0, 0, 0));
         labelTotal.setText("0.00");
 
+        btnTickets.setBackground(new java.awt.Color(204, 0, 255));
+        btnTickets.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnTickets.setForeground(new java.awt.Color(0, 0, 0));
+        btnTickets.setText("Tickets");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -312,31 +356,31 @@ public class Venta extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 458, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(jLabel3)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtBarras))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(33, 33, 33)
-                                        .addComponent(jLabel2)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(labelTotal))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(59, 59, 59)
-                                        .addComponent(btnBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(60, 60, 60)
-                                        .addComponent(btnPagar)))
-                                .addGap(0, 59, Short.MAX_VALUE))
+                                .addGap(59, 59, 59)
+                                .addComponent(btnBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtBarras)))
-                        .addContainerGap())))
+                                .addGap(37, 37, 37)
+                                .addComponent(jLabel3))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                    .addGap(60, 60, 60)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(btnTickets, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(btnPagar)))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                    .addGap(33, 33, 33)
+                                    .addComponent(jLabel2)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jLabel4)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(labelTotal))))
+                        .addGap(0, 37, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -355,7 +399,9 @@ public class Venta extends javax.swing.JFrame {
                             .addComponent(labelTotal))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnPagar)
-                        .addGap(177, 177, 177))
+                        .addGap(26, 26, 26)
+                        .addComponent(btnTickets, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(116, 116, 116))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1)
@@ -386,32 +432,40 @@ public class Venta extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRegresarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        String codigo = txtBarras.getText().trim();
+       String codigo = txtBarras.getText().trim();
 
         if (codigo.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingresa el código de barras.");
             return;
         }
 
+        // Usar nombres de columna actuales: cod_barras, nom_com, precio_venta, stock, gramaje
         try (Connection conn = Conexion.conectar();
              PreparedStatement ps = conn.prepareStatement(
-                 "SELECT  nombre_comercial, precio, stock FROM Productos WHERE codigo_barras = ? AND activo = 1 AND stock > 0"
+                 "SELECT nom_com, precio_venta, stock, gramaje FROM Productos WHERE cod_barras = ? AND activo = 1 AND stock > 0"
              )) {
 
             ps.setString(1, codigo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    String nombre = rs.getString("nombre_comercial");
-                    double precio = rs.getDouble("precio");
+                    String nombre = rs.getString("nom_com");
+                    double precio = rs.getDouble("precio_venta");
+                    String gramaje = "";
+                    try { gramaje = rs.getString("gramaje"); } catch (Exception ex) { gramaje = ""; }
 
                     DefaultTableModel modelo = (DefaultTableModel) tableVenta.getModel();
                     modelo.addRow(new Object[]{
-                    codigo,                // Código de barras en la columna 0
-                    nombre,
-                    1,                     // cantidad por defecto
-                    "$" + String.format("%.2f", precio),
-                    "$" + String.format("%.2f", precio)
-                });
+                        codigo,                // Código de barras en la columna 0 (oculta)
+                        nombre,
+                        1,                     // cantidad por defecto
+                        "$" + String.format("%.2f", precio),
+                        "$" + String.format("%.2f", precio),
+                        "Eliminar"
+                    });
+
+                    // Guardamos el gramaje en una columna oculta adicional o lo mantenemos en memoria:
+                    // Opcional: podrías tener otra columna oculta para gramaje si deseas.
+                    // Para PDF usamos el valor leído aquí al construir los SaleItem al pagar.
 
                     actualizarSubtotal();
                 } else {
@@ -422,105 +476,109 @@ public class Venta extends javax.swing.JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage());
         }
-
-
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
-        if (tableVenta.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "No hay productos en la venta.");
-            return;
+         if (tableVenta.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(this, "No hay productos en la venta.");
+        return;
         }
 
+        // Construir lista de items para SalesManager (ahora recogemos nombre y gramaje desde la BD por cada cod)
+        List<SalesManager.SaleItem> items = new ArrayList<>();
+        double totalVenta = 0.0;
+
         try (Connection conn = Conexion.conectar()) {
-            conn.setAutoCommit(false);
-
-            double totalVenta = 0;
-
-
             for (int i = 0; i < tableVenta.getRowCount(); i++) {
-                String subtotalStr = tableVenta.getValueAt(i, 4).toString().replace("$", "");
-                totalVenta += Double.parseDouble(subtotalStr);
-            }
-
-
-            String sqlVenta = "INSERT INTO Ventas (fecha_Venta, idUsuario, total) VALUES (?, ?, ?)";
-            PreparedStatement psVenta = conn.prepareStatement(sqlVenta, java.sql.Statement.RETURN_GENERATED_KEYS);
-            psVenta.setString(1, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            psVenta.setInt(2, idUsuario);
-            psVenta.setDouble(3, totalVenta);
-            psVenta.executeUpdate();
-
-            ResultSet rsVenta = psVenta.getGeneratedKeys();
-            int idVenta = rsVenta.next() ? rsVenta.getInt(1) : -1;
-            rsVenta.close();
-            psVenta.close();
-
-            // 🧾 Inserta detalles
-            String sqlDetalle = "INSERT INTO Detalles_venta (idVenta, idProducto, cantidad, precioInd, subtotal) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement psDetalle = conn.prepareStatement(sqlDetalle);
-
-            for (int i = 0; i < tableVenta.getRowCount(); i++) {
-                String codBarras = tableVenta.getValueAt(i, 0).toString(); // Código de barras en la columna 0
-
-                // 🔎 Obtener el idProducto basado en el codBarras
-                int idProducto = -1;
-                try (PreparedStatement psBuscar = conn.prepareStatement("SELECT id FROM Productos WHERE codigo_barras = ?")) {
-                    psBuscar.setString(1, codBarras);
-                    ResultSet rs = psBuscar.executeQuery();
-                    if (rs.next()) {
-                        idProducto = rs.getInt("id");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Producto no encontrado: " + codBarras);
-                        conn.rollback();
-                        return;
-                    }
-                    rs.close();
-                }
-
-                int cantidad;
+                String codBarras = String.valueOf(tableVenta.getValueAt(i, 0));
+                int cantidad = 1;
                 try {
-                    cantidad = Integer.parseInt(tableVenta.getValueAt(i, 2).toString());
-                } catch (NumberFormatException e) {
+                    cantidad = Integer.parseInt(String.valueOf(tableVenta.getValueAt(i, 2)));
+                } catch (Exception ex) {
                     cantidad = 1;
                 }
-
-                double precio = Double.parseDouble(tableVenta.getValueAt(i, 3).toString().replace("$", ""));
-                double subtotal = Double.parseDouble(tableVenta.getValueAt(i, 4).toString().replace("$", ""));
-
-                // Agrega detalle
-                psDetalle.setInt(1, idVenta);
-                psDetalle.setInt(2, idProducto);
-                psDetalle.setInt(3, cantidad);
-                psDetalle.setDouble(4, precio);
-                psDetalle.setDouble(5, subtotal);
-                psDetalle.addBatch();
-
-                // Actualiza el stock
-                try (PreparedStatement psStock = conn.prepareStatement(
-                        "UPDATE Productos SET stock = stock - ? WHERE id = ?")) {
-                    psStock.setInt(1, cantidad);
-                    psStock.setInt(2, idProducto);
-                    psStock.executeUpdate();
+                double precio = 0.0;
+                try {
+                    precio = Double.parseDouble(String.valueOf(tableVenta.getValueAt(i, 3)).replace("$", "").trim());
+                } catch (Exception ex) {
+                    precio = 0.0;
                 }
+
+                // Obtener nombre y gramaje desde la BD para garantizar consistencia
+                String nombreProducto = "";
+                String gramaje = "";
+                try (PreparedStatement psProd = conn.prepareStatement("SELECT nom_com, gramaje FROM Productos WHERE cod_barras = ? LIMIT 1")) {
+                    psProd.setString(1, codBarras);
+                    try (ResultSet rs = psProd.executeQuery()) {
+                        if (rs.next()) {
+                            nombreProducto = rs.getString("nom_com");
+                            gramaje = rs.getString("gramaje");
+                        }
+                    }
+                }
+
+                SalesManager.SaleItem it = new SalesManager.SaleItem(codBarras, cantidad, precio, nombreProducto, gramaje);
+                items.add(it);
+                totalVenta += it.subtotal;
             }
 
-            psDetalle.executeBatch();
-            psDetalle.close();
+            totalVenta = Math.round(totalVenta * 100.0) / 100.0;
 
-            conn.commit();
+            int confirmar = JOptionPane.showConfirmDialog(this,
+                "Confirma la venta por un total de $" + String.format("%.2f", totalVenta) + " ?",
+                "Confirmar venta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
 
-            JOptionPane.showMessageDialog(this, "Venta registrada exitosamente.");
-            ((DefaultTableModel) tableVenta.getModel()).setRowCount(0);
-            labelTotal.setText("Total: $0.00");
-            txtBarras.setText("");
+            if (confirmar != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            // Obtener nombre del vendedor (usuario) para mostrar en ticket
+            String vendedorNombre = null;
+            try (PreparedStatement psUser = conn.prepareStatement("SELECT nombre FROM Usuarios WHERE id = ? LIMIT 1")) {
+                psUser.setInt(1, idUsuario);
+                try (ResultSet rsu = psUser.executeQuery()) {
+                    if (rsu.next()) {
+                        vendedorNombre = rsu.getString("nombre");
+                    }
+                }
+            } catch (SQLException ex) {
+                // Si la columna se llama distinto, ajusta aquí. Si falla, quedará null y SalesManager imprimirá idUsuario.
+                System.out.println("No se pudo obtener nombre de usuario: " + ex.getMessage());
+            }
+
+            // Llamar a SalesManager para finalizar la venta (inserta Tickets y Ticket_Detalle, actualiza stock, genera PDF)
+            long idTicket = SalesManager.finalizarVenta(items, idUsuario, null, vendedorNombre);
+            if (idTicket > 0) {
+                JOptionPane.showMessageDialog(this, "Venta registrada. Ticket ID: " + idTicket);
+                // Limpiar UI
+                ((DefaultTableModel) tableVenta.getModel()).setRowCount(0);
+                labelTotal.setText("0.00");
+                txtBarras.setText("");
+                // Intentar abrir el PDF guardado (ruta almacenada en Tickets.ruta_pdf)
+                try (PreparedStatement ps = conn.prepareStatement("SELECT ruta_pdf FROM Tickets WHERE id = ?")) {
+                    ps.setLong(1, idTicket);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            String ruta = rs.getString("ruta_pdf");
+                            if (ruta != null && !ruta.isEmpty()) {
+                                try {
+                                    java.awt.Desktop.getDesktop().open(new java.io.File(ruta));
+                                } catch (Exception ex) {
+                                    System.out.println("No se pudo abrir el PDF: " + ex.getMessage());
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al finalizar la venta.");
+            }
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al registrar venta: " + e.getMessage());
         }
-
-
-
     }//GEN-LAST:event_btnPagarActionPerformed
 
     /**
@@ -552,6 +610,7 @@ public class Venta extends javax.swing.JFrame {
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnPagar;
     private javax.swing.JButton btnRegresar;
+    private javax.swing.JButton btnTickets;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
