@@ -4,6 +4,12 @@
  */
 package medicamentos;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 /**
  *
  * @author Bomby
@@ -19,11 +25,109 @@ public class EditarUsuario extends javax.swing.JFrame {
     
     private int rol;
     private int idUsuario;
+    private String originalUser = null;
     public EditarUsuario(int rol, int idUsuario) {
         this.rol = rol;
         this.idUsuario = idUsuario;
         initComponents();
         setLocationRelativeTo(null);
+        inicializar();
+    }
+
+    
+     private void inicializar() {
+        // Hacer combo editable para permitir que se modifique el nombre
+        boxUser.setEditable(true);
+
+        // Cargar usuarios desde la BD
+        cargarUsuarios();
+
+        // Al cambiar selección en el combo cargar la password del usuario seleccionado
+        boxUser.addActionListener(evt -> {
+            Object sel = boxUser.getSelectedItem();
+            if (sel != null) {
+                String nombre = sel.toString();
+                // Si el item seleccionado está vacío no hacemos nada
+                if (!nombre.trim().isEmpty()) {
+                    cargarPasswordSeleccion(nombre);
+                    originalUser = nombre; // recordamos el original para la actualización
+                }
+            }
+        });
+
+    }
+     
+     private void cargarUsuarios() {
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = Conexion.conectar();
+            String sql = "SELECT nombre FROM Usuario ORDER BY nombre COLLATE NOCASE ASC";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            boolean hay = false;
+            while (rs.next()) {
+                String nombre = rs.getString("nombre");
+                model.addElement(nombre);
+                hay = true;
+            }
+            boxUser.setModel(model);
+            if (hay) {
+                // seleccionar el primer elemento por defecto
+                boxUser.setSelectedIndex(0);
+                Object sel = boxUser.getSelectedItem();
+                if (sel != null) {
+                    originalUser = sel.toString();
+                    cargarPasswordSeleccion(originalUser);
+                }
+            } else {
+                originalUser = null;
+                txtPassword.setText("");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar usuarios: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            } catch (SQLException ex) {
+                System.out.println("Error cerrando recursos: " + ex.getMessage());
+            }
+            Conexion.cerrar(conn);
+        }
+    }
+     
+      private void cargarPasswordSeleccion(String nombre) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = Conexion.conectar();
+            String sql = "SELECT password FROM Usuario WHERE nombre = ? LIMIT 1";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, nombre);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                String pass = rs.getString("password");
+                txtPassword.setText(pass == null ? "" : pass);
+            } else {
+                txtPassword.setText("");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar contraseña: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            } catch (SQLException ex) {
+                System.out.println("Error cerrando recursos: " + ex.getMessage());
+            }
+            Conexion.cerrar(conn);
+        }
     }
 
     /**
@@ -42,7 +146,7 @@ public class EditarUsuario extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         txtPassword = new javax.swing.JTextField();
-        jButton2 = new javax.swing.JButton();
+        btnActualizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -73,10 +177,10 @@ public class EditarUsuario extends javax.swing.JFrame {
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("Password");
 
-        jButton2.setBackground(new java.awt.Color(0, 255, 0));
-        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(0, 0, 0));
-        jButton2.setText("Actualizar");
+        btnActualizar.setBackground(new java.awt.Color(0, 255, 0));
+        btnActualizar.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        btnActualizar.setForeground(new java.awt.Color(0, 0, 0));
+        btnActualizar.setText("Actualizar");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -102,7 +206,7 @@ public class EditarUsuario extends javax.swing.JFrame {
                         .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(129, 129, 129)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnActualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(56, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -121,7 +225,7 @@ public class EditarUsuario extends javax.swing.JFrame {
                     .addComponent(boxUser)
                     .addComponent(txtPassword))
                 .addGap(29, 29, 29)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnActualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(34, Short.MAX_VALUE))
         );
 
@@ -182,8 +286,8 @@ public class EditarUsuario extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> boxUser;
+    private javax.swing.JButton btnActualizar;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
