@@ -24,6 +24,7 @@ public class EliminarUsuario extends javax.swing.JFrame {
         this.rol = rol;
         this.idUsuario = idUsuario;
         initComponents();
+        setLocationRelativeTo(null);
     }
 
 
@@ -38,7 +39,7 @@ public class EliminarUsuario extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 

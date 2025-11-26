@@ -26,6 +26,7 @@ public class Menu_Usuarios extends javax.swing.JFrame {
         this.rol = rol;
         this.idUsuario = idUsuario;
         initComponents();
+        setLocationRelativeTo(null);
     }
 
     /**
