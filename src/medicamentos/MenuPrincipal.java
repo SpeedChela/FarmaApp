@@ -235,7 +235,9 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVentaActionPerformed
 
     private void btnUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUserActionPerformed
-        // TODO add your handling code here:
+        Menu_Usuarios users = new Menu_Usuarios(rol, idUsuario);
+        users.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnUserActionPerformed
 
     /**

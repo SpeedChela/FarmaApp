@@ -7,7 +7,7 @@ import java.util.*;
 import javax.swing.JOptionPane;
 import java.sql.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.JFrame;
+
 /**
  *
  * @author SP-DR
@@ -35,8 +35,16 @@ public class Inventario extends javax.swing.JFrame {
         // Título según rol
         if (rol == 1) {
             setTitle("Inventario - Administrador");
+            jLabel12.setText("Precio Venta");
+
         } else if (rol == 2) {
             setTitle("Inventario - Trabajador");
+            jLabel12.setText("Precio");
+            // Ocultar campos que no deben ver los usuarios: Precio Compra y % Venta
+            jLabel11.setVisible(false);       // etiqueta "Precio Compra"
+            txtPrecio_compra.setVisible(false);
+            jLabel13.setVisible(false);       // etiqueta "% Venta"
+            txtPorcentajeV.setVisible(false);
         }
 
         // Configura botones según acción
