@@ -4,6 +4,14 @@
  */
 package medicamentos;
 
+import com.sun.jdi.connect.spi.Connection;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Bomby
@@ -24,8 +32,23 @@ public class AgregarUsuario extends javax.swing.JFrame {
         this.idUsuario = idUsuario;
         initComponents();
         setLocationRelativeTo(null);
+        inicializar();
     }
 
+    private void inicializar() {
+        // Llenar combo con Admin / Empleado
+        boxRol.setModel(new DefaultComboBoxModel<>(new String[] { "Admin", "Empleado" }));
+        // Por defecto seleccionar Empleado (índice 1)
+        boxRol.setSelectedIndex(1);
+    }
+    
+        private void limpiarCampos() {
+        txtNombre.setText("");
+        txtPassword.setText("");
+        boxRol.setSelectedIndex(1); // Empleado por defecto
+    }
+
+    /**
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -72,6 +95,11 @@ public class AgregarUsuario extends javax.swing.JFrame {
         btnAgregar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnAgregar.setForeground(new java.awt.Color(0, 0, 0));
         btnAgregar.setText("Agregar");
+        btnAgregar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarActionPerformed(evt);
+            }
+        });
 
         btnRegresar.setBackground(new java.awt.Color(255, 0, 0));
         btnRegresar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -163,6 +191,62 @@ public class AgregarUsuario extends javax.swing.JFrame {
         mu.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnRegresarActionPerformed
+
+    private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
+            String nombre = txtNombre.getText() == null ? "" : txtNombre.getText().trim();
+        String password = txtPassword.getText() == null ? "" : txtPassword.getText().trim();
+        Object sel = boxRol.getSelectedItem();
+        if (sel == null) {
+            JOptionPane.showMessageDialog(this, "Selecciona un rol válido.");
+            return;
+        }
+        String rolStr = sel.toString();
+        int rolAInsertar = "Admin".equalsIgnoreCase(rolStr) ? 1 : 2;
+
+        // Validaciones básicas
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo Nombre no puede estar vacío.");
+            return;
+        }
+        if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo Password no puede estar vacío.");
+            return;
+        }
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = Conexion.conectar();
+
+            // Ajusta el nombre de la tabla y columnas si tu esquema difiere.
+            // Aquí usamos la tabla 'Usuario' y columnas (nombre, password, rol)
+            String sql = "INSERT INTO Usuario (nombre, password, rol) VALUES (?, ?, ?)";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, nombre);
+            ps.setString(2, password);
+            ps.setInt(3, rolAInsertar);
+
+            int filas = ps.executeUpdate();
+            if (filas > 0) {
+                JOptionPane.showMessageDialog(this, "Usuario agregado correctamente.");
+                limpiarCampos();
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo agregar el usuario.");
+            }
+        } catch (SQLException e) {
+            // Puedes mejorar el manejo según tus constraints (por ejemplo nombre único)
+            JOptionPane.showMessageDialog(this, "Error al agregar usuario: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException ex) {
+                System.out.println("Error cerrando PreparedStatement: " + ex.getMessage());
+            }
+            Conexion.cerrar(conn);
+        }
+    }//GEN-LAST:event_btnAgregarActionPerformed
 
     /**
      * @param args the command line arguments
