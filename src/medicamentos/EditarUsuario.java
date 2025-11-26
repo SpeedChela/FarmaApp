@@ -64,7 +64,7 @@ public class EditarUsuario extends javax.swing.JFrame {
         ResultSet rs = null;
         try {
             conn = Conexion.conectar();
-            String sql = "SELECT nombre FROM Usuario ORDER BY nombre COLLATE NOCASE ASC";
+            String sql = "SELECT nombre FROM Usuarios ORDER BY nombre COLLATE NOCASE ASC";
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             boolean hay = false;
@@ -106,7 +106,7 @@ public class EditarUsuario extends javax.swing.JFrame {
         ResultSet rs = null;
         try {
             conn = Conexion.conectar();
-            String sql = "SELECT password FROM Usuario WHERE nombre = ? LIMIT 1";
+            String sql = "SELECT password FROM Usuarios WHERE nombre = ? LIMIT 1";
             ps = conn.prepareStatement(sql);
             ps.setString(1, nombre);
             rs = ps.executeQuery();
@@ -181,6 +181,11 @@ public class EditarUsuario extends javax.swing.JFrame {
         btnActualizar.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         btnActualizar.setForeground(new java.awt.Color(0, 0, 0));
         btnActualizar.setText("Actualizar");
+        btnActualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -248,6 +253,86 @@ public class EditarUsuario extends javax.swing.JFrame {
         mu.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+         // Obtener nombre nuevo (soporta combo editable)
+    String nuevoNombre;
+    try {
+        Object editorItem = boxUser.getEditor().getItem();
+        nuevoNombre = editorItem == null ? "" : editorItem.toString().trim();
+    } catch (Exception ex) {
+        Object sel = boxUser.getSelectedItem();
+        nuevoNombre = sel == null ? "" : sel.toString().trim();
+    }
+
+    String nuevaPass = txtPassword.getText() == null ? "" : txtPassword.getText().trim();
+
+    if (originalUser == null || originalUser.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Primero selecciona un usuario existente para editar.");
+        return;
+    }
+    if (nuevoNombre.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "El nombre de usuario no puede estar vacío.");
+        return;
+    }
+    if (nuevaPass.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "La contraseña no puede estar vacía.");
+        return;
+    }
+
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    try {
+        conn = Conexion.conectar();
+
+        // 1) Verificar duplicados (case-insensitive), excluyendo el usuario original
+        String sqlCheck = "SELECT COUNT(1) as cnt FROM Usuarios WHERE LOWER(nombre) = LOWER(?) AND nombre <> ?";
+        ps = conn.prepareStatement(sqlCheck);
+        ps.setString(1, nuevoNombre);
+        ps.setString(2, originalUser);
+        rs = ps.executeQuery();
+        if (rs.next() && rs.getInt("cnt") > 0) {
+            JOptionPane.showMessageDialog(this, "Ya existe otro usuario con ese nombre. Elige uno distinto.", "Duplicado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        rs.close();
+        ps.close();
+
+        // 2) Actualizar registro usando el nombre original en WHERE
+        String sqlUpdate = "UPDATE Usuarios SET nombre = ?, password = ? WHERE nombre = ?";
+        ps = conn.prepareStatement(sqlUpdate);
+        ps.setString(1, nuevoNombre);
+        ps.setString(2, nuevaPass);
+        ps.setString(3, originalUser);
+        int filas = ps.executeUpdate();
+        ps.close();
+
+        if (filas > 0) {
+            JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.");
+            // Si tienes un método para recargar el combo, llámalo (ej: cargarUsuarios())
+            try {
+                cargarUsuarios(); // si existe en tu clase
+                boxUser.setSelectedItem(nuevoNombre);
+                originalUser = nuevoNombre;
+            } catch (Exception e) {
+                // Si no existe cargarUsuarios(), al menos actualizar originalUser y combo
+                originalUser = nuevoNombre;
+                boxUser.setSelectedItem(nuevoNombre);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No se encontró el usuario para actualizar o no hubo cambios.");
+        }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al actualizar usuario: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        try { if (rs != null) rs.close(); } catch (SQLException ex) { /* ignore */ }
+        try { if (ps != null) ps.close(); } catch (SQLException ex) { /* ignore */ }
+        Conexion.cerrar(conn);
+    }
+    }//GEN-LAST:event_btnActualizarActionPerformed
 
     /**
      * @param args the command line arguments
