@@ -4,9 +4,8 @@
  */
 package medicamentos;
 
-import com.sun.jdi.connect.spi.Connection;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JOptionPane;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.swing.DefaultComboBoxModel;
