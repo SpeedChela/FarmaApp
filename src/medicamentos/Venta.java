@@ -168,6 +168,21 @@ public class Venta extends javax.swing.JFrame {
      */
     public Venta() {
         initComponents();
+        // KeyListener para detectar códigos escaneados (ENTER)
+        txtBarras.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    String codigo = txtBarras.getText().trim();
+                    System.out.println("[DEBUG] Código escaneado recibido: " + codigo); // <-- DEBUG EN CONSOLA
+                    if (!codigo.isEmpty()) {
+                        buscarYAgregarProductoPorCodigo(codigo);
+                        txtBarras.setText("");
+                        txtBarras.requestFocus();
+                    }
+                }
+            }
+        });
     }
     
     public Venta(int rol, int idUsuario) {
@@ -220,6 +235,26 @@ public class Venta extends javax.swing.JFrame {
         } else if (rol == 2) {
             setTitle("Venta - Trabajador");
         }
+        
+        // KeyListener para detectar códigos escaneados (ENTER)
+        txtBarras.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    String codigo = txtBarras.getText().trim();
+                    System.out.println("[DEBUG] Código escaneado recibido: " + codigo); // <-- DEBUG EN CONSOLA
+                    if (!codigo.isEmpty()) {
+                        buscarYAgregarProductoPorCodigo(codigo);
+                        txtBarras.setText("");
+                        txtBarras.requestFocus();
+                    }
+                }
+            }
+        });
+    }
+    
+    public void insertarProductoPorCodigo(String codigo) {
+        buscarYAgregarProductoPorCodigo(codigo);
     }
     
     private void actualizarSubtotal() {

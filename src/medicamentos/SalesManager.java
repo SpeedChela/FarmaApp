@@ -180,75 +180,109 @@ public class SalesManager {
     /**
      * Genera el PDF del ticket. Lista: cod, nombre - gramaje, cantidad, p.u., subtotal.
      */
-    public static void generarPdfTicket(String ruta, long idTicket, String fecha, String vendedorNombre, List<SaleItem> items, double totalFinal) throws IOException {
-        PDDocument doc = new PDDocument();
-        PDPage page = new PDPage(PDRectangle.LETTER);
-        doc.addPage(page);
+    
+    /**
+    * Genera el PDF del ticket formateado para impresoras de 58mm (mini impresoras).
+    */
+        public static void generarPdfTicket(String ruta, long idTicket, String fecha, String vendedorNombre, List<SaleItem> items, double totalFinal) throws IOException {
+            float pageWidth = 164; // 58mm en puntos (1 pulgada = 72 puntos)
+            float margin = 10; // Márgenes pequeños para aprovechar mejor el espacio
+            float y; // Coordenada vertical inicial
 
-        try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
-            float y = page.getMediaBox().getUpperRightY() - 40;
-            cs.setFont(PDType1Font.HELVETICA_BOLD, 14);
-            cs.beginText();
-            cs.newLineAtOffset(40, y);
-            cs.showText("TICKET Nro: " + idTicket);
-            cs.endText();
+            PDDocument doc = new PDDocument();
+            PDPage page = new PDPage(new PDRectangle(pageWidth, 400)); // Altura inicial personalizada
+            doc.addPage(page);
 
-            cs.setFont(PDType1Font.HELVETICA, 10);
-            y -= 20;
-            cs.beginText();
-            cs.newLineAtOffset(40, y);
-            String vendedorLine = vendedorNombre != null && !vendedorNombre.isEmpty() ? "Vendedor: " + vendedorNombre : "Vendedor ID: N/A";
-            cs.showText("Fecha: " + fecha + "   " + vendedorLine);
-            cs.endText();
+            try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
+                y = page.getMediaBox().getHeight() - margin; // Coordenada "y" inicial
 
-            y -= 25;
-            cs.beginText();
-            cs.newLineAtOffset(40, y);
-            cs.showText("---------------------------------------------------------------");
-            cs.endText();
+                // Título
+                cs.setFont(PDType1Font.HELVETICA_BOLD, 10);
+                cs.beginText();
+                cs.newLineAtOffset(margin, y);
+                cs.showText("TICKET Nro: " + idTicket);
+                cs.endText();
 
-            y -= 15;
-            cs.beginText();
-            cs.newLineAtOffset(40, y);
-            cs.showText(String.format("%-12s %-30s %5s %10s %10s", "COD", "PRODUCTO (GRAM)", "CAN", "P.U.", "SUB"));
-            cs.endText();
+                // Información del vendedor y fecha
+                y -= 12; // Espaciado
+                cs.setFont(PDType1Font.HELVETICA, 8);
+                cs.beginText();
+                cs.newLineAtOffset(margin, y);
+                String vendedorLine = vendedorNombre != null && !vendedorNombre.isEmpty() ? "Vendedor: " + vendedorNombre : "Vendedor ID: N/A";
+                cs.showText("Fecha: " + fecha);
+                cs.endText();
 
+                y -= 10;
+                cs.beginText();
+                cs.newLineAtOffset(margin, y);
+                cs.showText(vendedorLine);
+                cs.endText();
+
+                // Separador
+                y -= 10;
+                cs.beginText();
+                cs.newLineAtOffset(margin, y);
+                cs.showText("----------------------------------------");
+                cs.endText();
+
+                // Encabezado de la tabla
+                y -= 12;
+                cs.beginText();
+                cs.newLineAtOffset(margin, y);
+                cs.showText(String.format("%-6s %-15s %3s %6s %7s", "COD", "PROD", "CAN", "P.U.", "SUB"));
+                cs.endText();
+            }
+
+            // Productos vendidos
             for (SaleItem it : items) {
-                y -= 15;
-                if (y < 60) {
-                    cs.close();
-                    page = new PDPage(PDRectangle.LETTER);
+                if (y < margin) { // Agregar nueva página si el espacio no es suficiente
+                    page = new PDPage(new PDRectangle(pageWidth, 400)); // Nueva página
                     doc.addPage(page);
-                    y = page.getMediaBox().getUpperRightY() - 40;
+                    y = page.getMediaBox().getHeight() - margin; // Reiniciar coordenada "y"
                 }
-                try (PDPageContentStream csLine = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true)) {
-                    csLine.setFont(PDType1Font.HELVETICA, 10);
-                    csLine.beginText();
-                    csLine.newLineAtOffset(40, y);
-                    String productoConGram = it.nombre;
-                    if (it.gramaje != null && !it.gramaje.isEmpty()) productoConGram += " - " + it.gramaje;
-                    String line = String.format(Locale.ROOT, "%-12s %-30.30s %5d %10.2f %10.2f", it.codBarras, productoConGram, it.cantidad, it.precioUnitario, it.subtotal);
-                    csLine.showText(line);
-                    csLine.endText();
-                    csLine.close();
+
+                String productoConGram = it.nombre + (it.gramaje != null && !it.gramaje.isEmpty() ? " " + it.gramaje : "");
+                String line = String.format(Locale.ROOT, "%-6s %-15.15s %3d %6.2f %7.2f",
+                        it.codBarras, productoConGram, it.cantidad, it.precioUnitario, it.subtotal);
+
+                try (PDPageContentStream cs = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true)) {
+                    y -= 10;
+                    cs.setFont(PDType1Font.HELVETICA, 7);
+                    cs.beginText();
+                    cs.newLineAtOffset(margin, y);
+                    cs.showText(line);
+                    cs.endText();
                 }
             }
 
-            y -= 20;
-            try (PDPageContentStream csTotal = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true)) {
-                csTotal.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                csTotal.beginText();
-                csTotal.newLineAtOffset(40, y);
-                csTotal.showText(String.format(Locale.ROOT, "TOTAL: %.2f", totalFinal));
-                csTotal.endText();
-                csTotal.close();
+            // Total Final
+            if (y < margin) {
+                page = new PDPage(new PDRectangle(pageWidth, 400)); // Nueva página
+                doc.addPage(page);
+                y = page.getMediaBox().getHeight() - margin;
             }
+
+            try (PDPageContentStream cs = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true)) {
+                y -= 15;
+                cs.setFont(PDType1Font.HELVETICA_BOLD, 9);
+                cs.beginText();
+                cs.newLineAtOffset(margin, y);
+                cs.showText(String.format(Locale.ROOT, "TOTAL: %.2f", totalFinal));
+                cs.endText();
+
+                y -= 20;
+                cs.setFont(PDType1Font.HELVETICA, 7);
+                cs.beginText();
+                cs.newLineAtOffset(margin, y);
+                cs.showText("GRACIAS POR SU COMPRA");
+                cs.endText();
+            }
+
+            // Guardar y cerrar el documento
+            doc.save(ruta);
+            doc.close();
         }
-
-        doc.save(ruta);
-        doc.close();
-    }
-
+    
     /**
      * Registra una cancelación: inserta en Cancelaciones, actualiza Ticket_Detalle.cantidad_devuelta y repone stock en Productos.
      * Devuelve true si OK.
